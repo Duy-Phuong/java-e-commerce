@@ -628,6 +628,12 @@ Xóa ở navbar đi
 
 &#38
 
+&nbsp
+
+---
+
+
+
 index.html
 
 ```html
@@ -1585,25 +1591,660 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
 
 ### 8. Addin MyProfile Page
 
+HomeController.java
+
+```java
+
+```
+
+gg: thymleaf string api
+
+https://www.thymeleaf.org/apidocs/thymeleaf/2.0.5/org/thymeleaf/expression/Strings.html
+
+myProfile.html thêm Edit user information 
+
+```html
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1000/xhtml">
+<head th:replace="common/header :: common-header" />
+
+<body>
+	<div th:replace="common/header :: navbar" />
+
+	<div class="container">
+		<div class="row" style="margin-bottom: -100px;">
+			<div class="col-xs-8">
+				<h2 class="section-headline">
+					<h2 class="section-headline">
+						<span th:text="${#strings.toUpperCase{user.username}}"></span>
+					</h2>
+				</h2>
+			</div>
+			<div class="col-xs-4">
+				<img src="/image/logo.png" class="img-responsive" />
+			</div>
+		</div>
+		<hr
+			style="position: absolute; width: 100%; height: 6px; background-color: #333; z-index: -1; margin-top: -80px;" />
+		<img class="img-responsive" src="/image/wood.png"
+			style="margin-top: -75px;" />
+
+		<div class="row" style="margin-top: 60px;">
+			<div class="col-xs-9 col-xs-offset-3">
+
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs">
+					<li th:classappend="${classActiveEdit}? 'active'"><a
+						href="#tab-1" data-toggle="tab"><span style="color: red;">Edit</span></a></li>
+					<li th:classappend="${classActiveOrders}? 'active'"><a
+						href="#tab-2" data-toggle="tab"><span style="color: red;">Orders</span></a></li>
+					<li th:classappend="${classActiveBilling}? 'active'"><a
+						href="#tab-3" data-toggle="tab"><span style="color: red;">Billing</span></a></li>
+					<li th:classappend="${classActiveShipping}? 'active'"><a
+						href="#tab-4" data-toggle="tab"><span style="color: red;">Shipping</span></a></li>
+				</ul>
+
+				<!-- Tab panels -->
+				<div class="tab-content">
+
+					<!-- Edit user information -->
+					<div class="tab-pane fade" id="tab-1"
+						th:classappend="${classActiveEdit}? 'in active'">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<form th:action="@{/updateUserInfo}" method="post">
+										<input type="hidden" name="id" th:value="${user.id}">
+
+										<div class="bg-info" th:if="${updateUserInfo}">User info
+											updated.</div>
+
+										<div class="form-group">
+											<div class="row">
+												<div class="col-xs-6">
+													<label for="firstName">First Name</label> <input
+														type="text" class="form-control" id="firstName"
+														name="firstName" th:value="${user.firstName}" />
+												</div>
+												<div class="col-xs-6">
+													<label for="lastName">Last Name</label> <input
+														type="text" class="form-control" id="lastName"
+														name="lastName" th:value="${user.lastName}" />
+												</div>
+											</div>
+										</div>
+										
+										<div class="form-group">
+											<label for="userName">Username</label> '
+											<input
+														type="text" class="form-control" id="userName"
+														name="userName" th:value="${user.userName}" />
+										</div>
+										<div class="form-group">
+											<label for="currentPassword">Current Password</label> '
+											<input
+														type="text" class="form-control" id="currentPassword"
+														name="currentPassword" th:value="${currentPassword}" />
+										</div>
+										<p style="color:#828282">Enter your current password to change the email address or password.</p>
+
+										<div class="form-group">
+											<label for="email">* Email Address</label> '
+											<input
+														type="text" class="form-control" id="email"
+														name="email" th:value="${user.email}" />
+										</div>
+										<p style="color:#828282">A valid email address. All
+												emails from the system withll be sent to this address. The
+												email address is not made public and will only be used if
+												you wish to receive a new password or wish to receive
+												certain notification.</p>
+												
+										<div class="form-group">
+											<label for="txtNewPassword">Password</label> '
+											<input
+														type="password" class="form-control" id="txtNewPassword"
+														name="newPassword" />
+										</div>
+										
+										<div class="form-group">
+											<label for="txtConfirmPassword">Confirm Password</label> '
+											<input
+														type="password" class="form-control" id="txtConfirmPassword"
+														 />
+										</div>
+										<p style="color:#828282">To change the current user password, enter the new password in both fields.</p>
+										
+										<button type="submit" class="btn btn-primary">Create
+											new account</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- log in -->
+					<div class="tab-pane fade" id="tab-2"
+						th:classappend="${classActiveLogin}? 'in active'">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<form>
+										<div class="form-group">
+											<label for="newUsername">* Username: </label> <input
+												required="required" type="text" class="form-control"
+												id="newUsername" name="username" />
+											<p style="color: #828282">Enter your username here.</p>
+										</div>
+
+										<div class="form-group">
+											<label for="password">* Password: </label> <input
+												required="required" type="password" class="form-control"
+												id="password" name="password" />
+											<p style="color: #828282">Enter the password that
+												accompanies your username</p>
+										</div>
+
+										<button type="submit" class="btn btn-primary">Log in</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- forget password -->
+					<div class="tab-pane fade" id="tab-3"
+						th:classappend="${classActiveForgetPassword}? 'in active'">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<form>
+										<div class="form-group">
+											<label for="recoverEmail">* Your Email: </label> <input
+												required="required" type="text" class="form-control"
+												id="recoverEmail" name="email" />
+											<p style="color: #828282">Enter your registered email
+												address here.</p>
+										</div>
+
+										<button type="submit" class="btn btn-primary">Submit</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end of container -->
+
+
+	<div th:replace="common/header :: body-bottom-scripts" />
+</body>
+</html>
+
+```
+
 
 
 ### 9. Adding New User Controller
 
+pom.xml
 
+```xml
+<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity4</artifactId>
+		</dependency>
+```
 
+header.html
 
+```html
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+    <ul class="nav navbar-nav navbar-right">
+		<li><a href="#">SHOPPING CART</a></li>
+		<li><a sec:authorize="isAnonymous()" th:href="@{/login}">MY ACCOUNT</a></li>
+		<li><a sec:authorize="isAuthenticated()" th:href="@{/myProfile}">MY ACCOUNT</a></li>
+		<li><a sec:authorize="isAuthenticated()" href="@{/logout}">LOGOUT</a></li>
+	</ul>
+```
+
+HomeController
+
+```java
+
+	@RequestMapping(value="/newUser", method=RequestMethod.POST)
+	public String newUserPost(
+			HttpServletRequest request,
+			@ModelAttribute("email") String userEmail,
+			@ModelAttribute("username") String username,
+			Model model
+			) throws Exception{
+		model.addAttribute("classActiveNewAccount", true);
+		model.addAttribute("email", userEmail);
+		model.addAttribute("username", username);
+		
+		if (userService.findByUsername(username) != null) {
+			model.addAttribute("usernameExists", true);
+			
+			return "myAccount";
+		}
+		
+		if (userService.findByEmail(userEmail) != null) {
+			model.addAttribute("email", true);
+			
+			return "myAccount";
+		}
+		
+		User user = new User();
+		user.setUsername(username);
+		user.setEmail(userEmail);
+		
+		String password = SecurityUtility.randomPassword();
+		
+		String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
+		user.setPassword(encryptedPassword);
+		
+		Role role = new Role();
+		role.setRoleId(1);
+		role.setName("ROLE_USER");
+		Set<UserRole> userRoles = new HashSet<>();
+		userRoles.add(new UserRole(user, role));
+		userService.createUser(user, userRoles);
+		
+		
+	}
+	
+```
+
+UserService.java
+
+```java
+
+	User findByUsername(String username);
+	
+	User findByEmail (String email);
+```
+
+UserServiceImpl.java
+
+```java
+@Override
+	public User findByUsername(String username) {
+		return userRepository.findByUsername(username);
+	}
+	
+	public User findByEmail (String email) {
+		return userRepository.findByEmail(email);
+```
 
 ### 10. Adding Create User Logic
+
+UserServiceImpl.java
+
+```java
+
+	public User createUser(User user, Set<UserRole> userRoles) throws Exception{
+		User localUser = userRepository.findByUsername(user.getUsername());
+		
+		if(localUser != null) {
+			throw new Exception("user already exists. Nothing will be done");
+		} else {
+			for (UserRole ur : userRoles) {
+				roleRepository.save(ur.getRole());
+			}
+			
+			user.getUserRoles().addAll(userRoles);
+			
+			localUser = userRepository.save(user);
+		}
+		
+		return localUser;
+	}
+```
+
+RoleRepository
+
+```java
+package com.bookstore.repository;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.bookstore.domain.security.Role;
+
+public interface RoleRepository extends CrudRepository<Role, Long> {
+	Role findByname(String name);
+}
+
+```
+
+HomeController.java
+
+```java
+@Autowired
+	private JavaMailSender mailSender;
+	
+	@Autowired
+	private MailConstructor mailConstructor;
+
+
+	@RequestMapping(value="/newUser", method=RequestMethod.POST)
+	public String newUserPost(
+			HttpServletRequest request,
+			@ModelAttribute("email") String userEmail,
+			@ModelAttribute("username") String username,
+			Model model
+			) throws Exception{
+		model.addAttribute("classActiveNewAccount", true);
+		model.addAttribute("email", userEmail);
+		model.addAttribute("username", username);
+		
+		if (userService.findByUsername(username) != null) {
+			model.addAttribute("usernameExists", true);
+			
+			return "myAccount";
+		}
+		
+		if (userService.findByEmail(userEmail) != null) {
+			model.addAttribute("email", true);
+			
+			return "myAccount";
+		}
+		
+		User user = new User();
+		user.setUsername(username);
+		user.setEmail(userEmail);
+		
+		String password = SecurityUtility.randomPassword();
+		
+		String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
+		user.setPassword(encryptedPassword);
+		
+		Role role = new Role();
+		role.setRoleId(1);
+		role.setName("ROLE_USER");
+		Set<UserRole> userRoles = new HashSet<>();
+		userRoles.add(new UserRole(user, role));
+		userService.createUser(user, userRoles);
+		
+		String token = UUID.randomUUID().toString();
+		userService.createPasswordResetTokenForUser(user, token);
+		
+		String appUrl = "http://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath();
+		
+		SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
+		
+		mailSender.send(email);
+		
+		model.addAttribute("emailSent", "true");
+		
+		return "myAccount";
+	}
+	
+
+```
+
+pom.xml
+
+```xml
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+```
+
+utility/MailConstructor
+
+```java
+package com.bookstore.utility;
+
+import java.util.Locale;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.stereotype.Component;
+
+import com.bookstore.domain.User;
+
+@Component
+public class MailConstructor {
+	@Autowired
+	private Environment env;
+	
+	public SimpleMailMessage constructResetTokenEmail(
+			String contextPath, Locale locale, String token, User user, String password
+			) {
+		
+		String url = contextPath = "/newUser?token="+token;
+		String message = "\nPlease click on this link to verify your email and edit your personal information. Your password is: \n"+password;
+		SimpleMailMessage email = new SimpleMailMessage();
+		email.setTo(user.getEmail());
+		email.setSubject("Le's Bookstore - New User");
+		email.setText(url+message);
+		email.setFrom(env.getProperty("support.email"));
+		return email;
+		
+	}
+}
+
+```
+
+application.properties
+
+```properties
+
+
+spring.mail.host=smtp.gmail.com
+spring.mail.username=ray.deng83@gmail.com
+spring.mail.password=Rochester25
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.socketFactory.port=465
+spring.mail.properties.mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+spring.mail.properties.mail.smtp.socketFactory.fallback=false
+support.email=ray.deng83@gmail.com
+
+```
+
+BookstoreApplication
+
+```java
+
+	@Override
+	public void run(String... args) throws Exception {
+		User user1 = new User();
+		user1.setFirstName("John");
+		user1.setLastName("Adams");
+		user1.setUsername("j");
+		user1.setPassword(SecurityUtility.passwordEncoder().encode("p"));
+		user1.setEmail("JAdams@gmail.com");
+		Set<UserRole> userRoles = new HashSet<>();
+		Role role1= new Role();
+		role1.setRoleId(1);
+		role1.setName("ROLE_USER");
+		userRoles.add(new UserRole(user1, role1));
+		
+		userService.createUser(user1, userRoles);
+	}
+```
 
 
 
 ### 11. Create New User Trouble Shooting
 
+myAccount create new user
+
+```html
+<div class="alert alert-info" th:if="${emailSent}">
+										An email has been sent to the email address you just registered. Please validate your email address and update your password information.
+</div>
+
+<form th:action="@{/newUser}" method="post">
+```
+
+DROP all table
+
+SecurityConfig
+
+```java
+private static final String[] PUBLIC_MATCHERS = {
+			"/css/**",
+			"/js/**",
+			"/image/**",
+			"/",
+			"/newUser",  // add
+			"/forgetPassword"
+	};
+```
+
+UserServiceImpl
+
+```java
+	private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
+
+public User createUser(User user, Set<UserRole> userRoles){
+		User localUser = userRepository.findByUsername(user.getUsername());
+		
+		if(localUser != null) {
+            // add
+			LOG.info("user {} already exists. Nothing will be done.", user.getUsername());
+		}
+```
+
+PasswordResetToken
+
+```java
+	public PasswordResetToken(){}
+
+```
+
+HomeController.java
+
+```java
+// line 140
+		model.addAttribute("user", user);
+
+```
+
 
 
 ### 12. Wrapping MyAccount Login
 
+myAccount
 
+```html
+<form th:action="@{/newUser}" method="post">
+<div class="form-group">
+	<label for="newUsername">* Username: </label>&nbsp;<span
+		style="color: red;" th:if="${usernameExists}">Username
+		already exists. Choose a different one.</span> <input
+		required="required" type="text" class="form-control"
+		id="newUsername" name="username" />
+	<p style="color: #828282">Enter your username here.</p>
+</div>
+
+<div class="form-group">
+	<label for="email">* Email Address: </label><span
+		style="color: red;" th:if="${emailExists}">Email
+		already exists. Choose a different one.</span> <input
+		required="required" type="text" class="form-control"
+		id="email" name="email" />
+	<p style="color: #828282">A valid email address. All
+		emails from the system withll be sent to this address. The
+		email address is not made public and will only be used if
+		you wish to receive a new password or wish to receive
+		certain notification.</p>
+</div>
+
+<button type="submit" class="btn btn-primary">Create
+	new account</button>
+</form>
+```
+
+SecurityConfig
+
+```java
+private static final String[] PUBLIC_MATCHERS = {
+			"/css/**",
+			"/js/**",
+			"/image/**",
+			"/",
+			"/newUser",
+			"/forgetPassword",
+    
+    // add
+			"/login",
+			"/fonts/**"
+	};
+```
+
+HomeController
+
+```java
+
+	@RequestMapping("/forgetPassword")
+	public String forgetPassword(
+			HttpServletRequest request,
+			@ModelAttribute("email") String email,
+			Model model
+			) {
+
+		model.addAttribute("classActiveForgetPassword", true);
+		
+		User user = userService.findByEmail(email);
+		
+		if (user == null) {
+			model.addAttribute("emailNotExist", true);
+			return "myAccount";
+		}
+		
+		String password = SecurityUtility.randomPassword();
+		
+		String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
+		user.setPassword(encryptedPassword);
+		
+		userService.save(user);
+		
+		String token = UUID.randomUUID().toString();
+		userService.createPasswordResetTokenForUser(user, token);
+		
+		String appUrl = "http://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath();
+		
+		SimpleMailMessage newEmail = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
+		
+		mailSender.send(newEmail);
+		
+		model.addAttribute("forgetPasswordEmailSent", "true");
+		
+		
+		return "myAccount";
+	}
+```
+
+UserServiceImpl.java
+
+```java
+	@Override
+	public User save(User user) {
+		return userRepository.save(user);
+	}
+
+```
+
+myAccount => forget password
 
 ## 4. Getting Started on Admin Portal
 ### 1. Entity Relationship
