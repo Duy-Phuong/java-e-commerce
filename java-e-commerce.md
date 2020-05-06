@@ -94,8 +94,27 @@ old
 new in .m2
 
 ```xml
+<settings>
+<proxies>
+  <proxy>
+    <id>proxy</id>
+    <active>false</active>
+    <protocol>http</protocol>
+    <host>proxy.fujinet.vn</host>
+    <port>8080</port>
+  </proxy>
+</proxies>
+
+<mirrors>
+</mirrors>
+  
+</settings>
 
 ```
+
+Xóa mirror thì hết lỗi
+
+There might have been some intermittent Internet issue or something. I was facing the same problem yesterday. Updating the the project (On STS or Eclipse, right click on the project and Maven -> Update project -> tick everything except *Offline*) after sometime fixed it.
 
 
 
