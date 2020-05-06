@@ -7,6 +7,8 @@ C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/
 ### 1. Download this source files first !!!!.html
 ### 2. Course Overview
 
+![image-20200506134155440](java-e-commerce.assets/image-20200506134155440.png)
+
 ### 3. Project Tour
 
 ![image-20200506072247776](java-e-commerce.assets/image-20200506072247776.png)  
@@ -703,24 +705,905 @@ index.html
 ## 3. My Account
 ### 1. Adding MyAccount Page
 
+HomeController
 
+```js
+package com.bookstore.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class HomeController {
+	@RequestMapping("/")
+	public String index() {
+		return "index";
+	}
+	
+    // add
+	@RequestMapping("/myAccount")
+	public String myAccount() {
+		return "myAccount";
+	}
+}
+
+```
+
+myAccount.html
+
+```html
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1000/xhtml">
+<head th:replace="common/header :: common-header" />
+
+<body>
+	<div th:replace="common/header :: navbar" />
+
+	<div class="container">
+		<div class="row" style="margin-bottom: -100px;">
+			<div class="col-xs-8">
+				<h2 class="section-headline"><span>User Account</span></h2>
+			</div>
+			<div class="col-xs-4">
+				<img src="/image/logo.png" class="img-responsive" />
+			</div>
+		</div>
+		<hr style="position:absolute; width:100%; height:6px; background-color: #333; z-index:-1; margin-top:-80px;" />
+		<img class="img-responsive" src="/image/wood.png" style="margin-top: -75px;"/>
+		
+		<div class="row" style="margin-top: 120px;">
+			<div class="col-xs-9 col-xs-offset-3">
+				
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs">
+					<li><a href="#tab-1" data-toggle="tab"><span style="color:red;">Create new account</span></a></li>
+					<li><a href="#tab-2" data-toggle="tab"><span style="color:red;">Log in</span></a></li>
+					<li><a href="#tab-3" data-toggle="tab"><span style="color:red;">Forget Password</span></a></li>
+				</ul>
+			
+			</div>
+		</div>
+	</div>
+	<!-- end of container -->
+
+
+	<div th:replace="common/header :: body-bottom-scripts" />
+</body>
+</html>
+
+```
+
+style.css
+
+```css
+
+.section-headline {
+	font-family: 'Times New Roman', Times, serif;
+	font-size:24px;
+	color: #fff;
+	margin: auto;
+	text-align: center;
+	margin-top: 90px;
+}
+
+.section-headline span {
+	background-color: #231F20;
+    padding: 5px 22px;
+	
+}
+```
+
+
+
+![image-20200506112451335](java-e-commerce.assets/image-20200506112451335.png)
 
 ### 2. Adding MyAccount Page Body
+
+myAccount.html
+
+```html
+<div class="row" style="margin-top: 60px;">
+			<div class="col-xs-9 col-xs-offset-3">
+
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs">
+					<li><a href="#tab-1" data-toggle="tab"><span
+							style="color: red;">Create new account</span></a></li>
+					<li><a href="#tab-2" data-toggle="tab"><span
+							style="color: red;">Log in</span></a></li>
+					<li><a href="#tab-3" data-toggle="tab"><span
+							style="color: red;">Forget Password</span></a></li>
+				</ul>
+
+				<!-- Tab panels -->
+				<div class="tab-content">
+				
+					<!-- create new user pane -->
+					<div class="tab-pane fade" id="tab-1">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<form>
+										<div class="form-group">
+											<label for="newUsername">* Username: </label> <input
+												required="required" type="text" class="form-control"
+												id="newUsername" name="username" />
+											<p style="color: #828282">Enter your username here.</p>
+										</div>
+
+										<div class="form-group">
+											<label for="email">* Email Address: </label> <input
+												required="required" type="text" class="form-control"
+												id="email" name="email" />
+											<p style="color: #828282">A valid email address. All
+												emails from the system withll be sent to this address. The
+												email address is not made public and will only be used if
+												you wish to receive a new password or wish to receive
+												certain notification.</p>
+										</div>
+										
+										<button type="submit" class="btn btn-primary">Create new account</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- log in -->
+					<div class="tab-pane fade" id="tab-2">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<form>
+										<div class="form-group">
+											<label for="newUsername">* Username: </label> <input
+												required="required" type="text" class="form-control"
+												id="newUsername" name="username" />
+											<p style="color: #828282">Enter your username here.</p>
+										</div>
+
+										<div class="form-group">
+											<label for="password">* Password: </label> <input
+												required="required" type="password" class="form-control"
+												id="password" name="password" />
+											<p style="color: #828282">Enter the password that accompanies your username</p>
+										</div>
+										
+										<button type="submit" class="btn btn-primary">Log in</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- forget password -->
+					<div class="tab-pane fade" id="tab-3">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<form>
+										<div class="form-group">
+											<label for="recoverEmail">* Your Email: </label> <input
+												required="required" type="text" class="form-control"
+												id="recoverEmail" name="email" />
+											<p style="color: #828282">Enter your registered email address here.</p>
+										</div>
+
+										<button type="submit" class="btn btn-primary">Submit</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+```
+
+![image-20200506132436050](java-e-commerce.assets/image-20200506132436050.png)  
+
+![image-20200506132608550](java-e-commerce.assets/image-20200506132608550.png)
+
 ### 3. Adding User Entity, JPA, Hibernate and MySQL
+
+https://stackoverflow.com/questions/50177907/com-mysql-jdbc-exceptions-jdbc4-mysqlnontransientconnectionexception-could-not/50186856
+
+Nếu lỗi thêm version cho mysql connector
+
+pom.xml
+
+```xml
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+```
+
+domain/User.java
+
+```java
+package com.bookstore.domain;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class User{
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="id", nullable = false, updatable = false)
+	private Long id;
+	private String username;
+	private String password;
+	private String firstName;
+	private String lastName;
+	
+	@Column(name="email", nullable = false, updatable = false)
+	private String email;
+	private String phone;
+	private boolean enabled=true;
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public boolean isEnabled() {
+		return enabled;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	
+}
+
+
+```
+
+application.properties
+
+```properties
+spring.thymeleaf.cache=false
+
+
+# ===============================
+# = DATA SOURCE
+# ===============================
+
+# Set here configurations for the database connection
+spring.datasource.url=jdbc:mysql://localhost:3306/bookstoredatabase
+
+# Username and secret
+spring.datasource.username=root
+spring.datasource.password=sesame
+
+# Keep the connection alive if idle for a long time (needed in production)
+spring.datasource.testWhileIdle = true
+spring.datasource.validationQuery = SELECT 1
+
+# ===============================
+# = JPA / HIBERNATE
+# ===============================
+
+# Use spring.jpa.properties.* for Hibernate native properties (the prefix is
+# stripped before adding them to the entity manager).
+
+# Show or not log for each sql query
+spring.jpa.show-sql=true
+
+# Hibernate ddl auto (create, create-drop, update): with "update" the database
+# schema will be automatically updated accordingly to java entities found in
+# the project
+spring.jpa.hibernate.ddl-auto = update
+
+# Allows Hibernate to generate SQL optimized for a particular DBMS
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
+
+
+
+```
+
+Sau khi run app thì vào schema refresh => new table user
+
 ### 4. Adding Security and Security Entities
+
+Create package security/Authority.java
+
+```java
+package com.bookstore.domain.security;
+
+import org.springframework.security.core.GrantedAuthority;
+
+public class Authority implements GrantedAuthority{
+	private final String authority;
+	
+	public Authority(String authority) {
+		this.authority = authority;
+	}
+	
+	@Override
+	public String getAuthority() {
+		return authority;
+	}
+}
+
+```
+
+Role.java
+
+```java
+package com.bookstore.domain.security;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+@Entity
+public class Role {
+
+	@Id
+	private int roleId;
+	private String name;
+	
+	@OneToMany(mappedBy = "role", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	private Set<UserRole> userRoles = new HashSet<>();
+
+	// Get set
+	
+	
+}
+
+```
+
+UserRole.java
+
+```java
+package com.bookstore.domain.security;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.bookstore.domain.User;
+
+@Entity
+@Table(name="user_role")
+public class UserRole {
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long userRoleId;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name="user_id")
+	private User user;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name="role_id")
+	private Role role;
+	
+	
+	public UserRole(User user, Role role) {
+		this.user = user;
+		this.role = role;
+	}
+// get set
+	
+}
+
+```
+
 ### 5. Adding Security Configuration
+
+config/SecurityConfig
+
+```java
+package com.bookstore.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.bookstore.service.impl.UserSecurityService;
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled=true)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+	@Autowired
+	private Environment env;
+	
+	@Autowired
+	private UserSecurityService userSecurityService;
+	
+	private BCryptPasswordEncoder passwordEncoder() {
+		return SecurityUtility.passwordEncoder();
+	}
+	
+	private static final String[] PUBLIC_MATCHERS = {
+			"/css/**",
+			"/js/**",
+			"/image/**",
+			"/",
+			"/myAccount"
+	};
+	
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests().
+		/*	antMatchers("/**").*/
+			antMatchers(PUBLIC_MATCHERS).
+			permitAll().anyRequest().authenticated();
+		
+		http
+			.csrf().disable().cors().disable()
+			.formLogin().failureUrl("/login?error").defaultSuccessUrl("/")
+			.loginPage("/login").permitAll()
+			.and()
+			.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+			.logoutSuccessUrl("/?logout").deleteCookies("remember-me").permitAll()
+			.and()
+			.rememberMe();
+	}
+	
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		auth.userDetailsService(userSecurityService).passwordEncoder(passwordEncoder());
+	}
+	
+}
+
+```
+
+service/impl/UserSecurityService
+
+```java
+package com.bookstore.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.bookstore.domain.User;
+import com.bookstore.repository.UserRepository;
+
+@Service
+public class UserSecurityService implements UserDetailsService{
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userRepository.findByUsername(username);
+		
+		if(null == user) {
+			throw new UsernameNotFoundException("Username not found");
+		}
+		
+		return user;
+	}
+
+}
+
+```
+
+repository/UserRepository
+
+```java
+package com.bookstore.repository;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.bookstore.domain.User;
+
+public interface UserRepository extends CrudRepository<User, Long> {
+	User findByUsername(String username);
+}
+
+```
+
+
+
+Lúc này chỉ còn lỗi SecurityUtility
+
 ### 6. Adding More to Login
+
+create package utility/SecurityUtility
+
+```java
+package com.bookstore.utility;
+
+import java.security.SecureRandom;
+import java.util.Random;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
+
+@Component
+public class SecurityUtility {
+	private static final String SALT = "salt"; // Salt should be protected carefully
+	
+	@Bean
+	public static BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(12, new SecureRandom(SALT.getBytes()));
+	}
+	
+	@Bean
+	public static String randomPassword() {
+		String SALTCHARS = "ABCEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		StringBuilder salt = new StringBuilder();
+		Random rnd = new Random();
+		
+		while (salt.length()<18) {
+			int index= (int) (rnd.nextFloat()*SALTCHARS.length());
+			salt.append(SALTCHARS.charAt(index));
+		}
+		String saltStr = salt.toString();
+		return saltStr;
+	}
+}
+
+```
+
+HomeController
+
+```java
+package com.bookstore.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class HomeController {
+	@RequestMapping("/")
+	public String index() {
+		return "index";
+	}
+	
+	@RequestMapping("/login")
+	public String login(Model model) {
+		model.addAttribute("classActiveLogin", true);
+		return "myAccount";
+	}
+	
+	@RequestMapping("/forgetPassword")
+	public String forgetPassword(Model model) {
+		model.addAttribute("classActiveForgetPassword", true);
+		return "myAccount";
+	}
+	
+	@RequestMapping("/newUser")
+	public String newUser(Model model) {
+		model.addAttribute("classActiveNewUser", true);
+		return "myAccount";
+	}
+}
+
+```
+
+myAccount.hmtl
+
+```html
+<!-- Nav tabs -->
+				<ul class="nav nav-tabs">
+					<li th:classappend="${classActiveNewAccount}? 'active'"><a href="#tab-1" data-toggle="tab"><span
+							style="color: red;">Create new account</span></a></li>
+					<li th:classappend="${classActiveLogin}? 'active'"><a href="#tab-2" data-toggle="tab"><span
+							style="color: red;">Log in</span></a></li>
+					<li th:classappend="${classActiveForgetPassword}? 'active'"><a href="#tab-3" data-toggle="tab"><span
+							style="color: red;">Forget Password</span></a></li>
+				</ul>
+
+					<!-- log in -->
+<div class="tab-pane fade" id="tab-2" th:classappend="${classActiveLogin}? 'in active'">
+
+```
+
+header.html
+
+```html
+<ul class="nav navbar-nav navbar-right">
+		<li><a href="#">SHOPPING CART</a></li>
+		<li><a th:href="@{/login}">MY ACCOUNT</a></li>
+		<li><a href="#">LOGOUT</a></li>
+</ul>
+```
+
+
+
 ### 7. Adding PasswordResetToken and UserService
+
+domain/PasswordResetToken.java
+
+```java
+package com.bookstore.domain.security;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+
+import com.bookstore.domain.User;
+
+@Entity
+public class PasswordResetToken {
+
+	private static final int EXPIRATION = 60 * 24;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	
+	private String token;
+	
+	@OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+	@JoinColumn(nullable=false, name="user_id")
+	private User user;
+	
+	private Date expiryDate;
+	
+	public PasswordResetToken(final String token, final User user) {
+		super ();
+		
+		this.token = token;
+		this.user = user;
+		this.expiryDate = calculateExpiryDate(EXPIRATION);
+	}
+	
+	private Date calculateExpiryDate (final int expiryTimeInMinutes) {
+		final Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(new Date().getTime());
+		cal.add(Calendar.MINUTE, expiryTimeInMinutes);
+		return new Date(cal.getTime().getTime());
+	}
+	
+	public void updateToken(final String token) {
+		this.token = token;
+		this.expiryDate = calculateExpiryDate(EXPIRATION);
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Date getExpiryDate() {
+		return expiryDate;
+	}
+
+	public void setExpiryDate(Date expiryDate) {
+		this.expiryDate = expiryDate;
+	}
+
+	public static int getExpiration() {
+		return EXPIRATION;
+	}
+
+	@Override
+	public String toString() {
+		return "PasswordResetToken [id=" + id + ", token=" + token + ", user=" + user + ", expiryDate=" + expiryDate
+				+ "]";
+	}
+	
+	
+}
+
+```
+
+UserService.java
+
+```java
+package com.bookstore.service;
+
+import com.bookstore.domain.User;
+import com.bookstore.domain.security.PasswordResetToken;
+
+public interface UserService {
+	PasswordResetToken getPasswordResetToken(final String token);
+	
+	void createPasswordResetTokenForUser(final User user, final String token);
+}
+
+```
+
+UserServiceImpl
+
+```java
+package com.bookstore.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bookstore.domain.User;
+import com.bookstore.domain.security.PasswordResetToken;
+import com.bookstore.repository.PasswordResetTokenRepository;
+import com.bookstore.service.UserService;
+
+@Service
+public class UserServiceImpl implements UserService{
+	
+	@Autowired
+	private PasswordResetTokenRepository passwordResetTokenRepository;
+	
+	@Override
+	public PasswordResetToken getPasswordResetToken(final String token) {
+		return passwordResetTokenRepository.findByToken(token);
+	}
+	
+	@Override
+	public void createPasswordResetTokenForUser(final User user, final String token) {
+		final PasswordResetToken myToken = new PasswordResetToken(token, user);
+		passwordResetTokenRepository.save(myToken);
+	}
+
+}
+
+```
+
+PasswordResetTokenRepository.java
+
+```java
+package com.bookstore.repository;
+
+import java.util.Date;
+import java.util.stream.Stream;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+
+import com.bookstore.domain.User;
+import com.bookstore.domain.security.PasswordResetToken;
+
+public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
+	
+	PasswordResetToken findByToken(String token);
+	
+	PasswordResetToken findByUser(User user);
+	
+	Stream<PasswordResetToken> findAllByExpiryDateLessThan(Date now);
+	
+	@Modifying
+	@Query("delete from PasswordResetTOken t where t.expirydate <= ?1")
+	void deleteAllExpiredSince(Date now);
+
+}
+
+```
+
+
+
 ### 8. Addin MyProfile Page
+
+
+
 ### 9. Adding New User Controller
+
+
 
 
 
 ### 10. Adding Create User Logic
 
+
+
 ### 11. Create New User Trouble Shooting
 
+
+
 ### 12. Wrapping MyAccount Login
+
+
 
 ## 4. Getting Started on Admin Portal
 ### 1. Entity Relationship
