@@ -694,13 +694,17 @@ index.html
 
 ```
 
+![image-20200506110104176](java-e-commerce.assets/image-20200506110104176.png)  
+
+![image-20200506110134143](java-e-commerce.assets/image-20200506110134143.png)
+
 
 
 ## 3. My Account
 ### 1. Adding MyAccount Page
-### 10. Adding Create User Logic
-### 11. Create New User Trouble Shooting
-### 12. Wrapping MyAccount Login
+
+
+
 ### 2. Adding MyAccount Page Body
 ### 3. Adding User Entity, JPA, Hibernate and MySQL
 ### 4. Adding Security and Security Entities
@@ -709,9 +713,17 @@ index.html
 ### 7. Adding PasswordResetToken and UserService
 ### 8. Addin MyProfile Page
 ### 9. Adding New User Controller
+
+
+
+### 10. Adding Create User Logic
+
+### 11. Create New User Trouble Shooting
+
+### 12. Wrapping MyAccount Login
+
 ## 4. Getting Started on Admin Portal
 ### 1. Entity Relationship
-### 10. AdminPortal - View BookList
 ### 2. AdminPortal - Book Entity
 ### 3. AdminPortal - Home Template
 ### 4. AdminPortal - Login Page
@@ -720,6 +732,11 @@ index.html
 ### 7. AdminPortal - Add New Book Form - part 2
 ### 8. AdminPortal - Modify New Book Form
 ### 9. AdminPortal - Add New Book Backend Logic
+
+### 10. AdminPortal - View BookList
+
+
+
 ## 5. BookStore Frontend
 ### 1. BookStore - Add Bookshelf
 ### 2. Bookstore - Add Book Detail Page
@@ -730,8 +747,6 @@ index.html
 ### 7. AdminPortal - Add Various Plugin
 ## 6. Enhance the Features
 ### 1. Bookstore - Adding MyProfile Controller
-### 10. Bookstore - Add New Shipping Logic
-### 11. Bookstore - Update Remove and SetDefault for UserShipping
 ### 2. Bookstore - Adding UserShipping and UserPayment
 ### 3. Bookstore - Add UserShipping and UserBilling Logic
 ### 4. Bookstore - Add CreditCard Template
@@ -740,6 +755,11 @@ index.html
 ### 7. Bookstore - Add Update CreditCard Info
 ### 8. Bookstore - Remove CreditCard and Set Default CreditCard
 ### 9. Bookstore - Add UserShiping Template
+
+### 10. Bookstore - Add New Shipping Logic
+
+### 11. Bookstore - Update Remove and SetDefault for UserShipping
+
 ## 7. A Journey of Shopping Cart
 ### 1. Bookstore - Add Entities for ShoppingCart and Order
 ### 2. Bookstore - Add Other Entities
