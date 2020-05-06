@@ -11,24 +11,94 @@ C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/
 
 ![image-20200506072247776](java-e-commerce.assets/image-20200506072247776.png)  
 
-
+![image-20200506072907952](java-e-commerce.assets/image-20200506072907952.png)
 
 ### 4. Project Modules
+
+![image-20200506073119863](java-e-commerce.assets/image-20200506073119863.png)  
+
+![image-20200506073137558](java-e-commerce.assets/image-20200506073137558.png)  
+
+![image-20200506073157706](java-e-commerce.assets/image-20200506073157706.png)
+
 ### 5. Tools We Need
-## 10. Some More Features
-### 1. Bookstore - Add View Order Detail Template
-### 2. Bookstore - Add Order Detail Controller
-### 3. AdminPortal - Import Book Data
-### 4. Bookstore - Scenario Testing and Bug Fixing
-### 5. AdminPortal - Add Delete Book Functionality
-### 6. AdminPortal - Finish Up Deleting
-### 7. Bookstore - Some Other Enhancement
-### 8. Bookstore - Add SearchByCategory Logic
-### 9. Bookstore - Fuzzy Search
-## 11. Wrap Up
-### 1. Closing
+
+Vào marketpalce install spring tool 3
+
+![image-20200506080446881](java-e-commerce.assets/image-20200506080446881.png)  
+
+
+
+https://www.sequelpro.com/
+
+
+
 ## 2. Getting Started
 ### 1. Start Project with Index Page
+
+https://getbootstrap.com/docs/3.4/examples/navbar/
+
+CTRL U
+
+download bs 3.3.7
+
+Eclipse: file new/ Spring starter project
+![image-20200506081445040](java-e-commerce.assets/image-20200506081445040.png)  
+
+![image-20200506081814005](java-e-commerce.assets/image-20200506081814005.png)  
+
+Check
+
+![image-20200506081903586](java-e-commerce.assets/image-20200506081903586.png)  
+
+Khi mới tạo file pom.xml bị lỗi
+
+http://maven.apache.org/settings.html
+
+https://stackoverflow.com/questions/31901320/pom-error-failure-to-find-org-springframework-boot
+
+https://stackoverflow.com/questions/32125025/maven-and-spring-boot-non-resolvable-parent-pom-repo-spring-io-unknown-host
+
+Obviously it's a problem with your internet connection. Check, if you can reach [http://repo.spring.io](http://repo.spring.io/) with your browser. If yes, check if you need to configure a proxy server. If no, you should contact your internet provider.
+
+Here is the documentation, how you configure a proxy server for Maven: https://maven.apache.org/guides/mini/guide-proxies.html
+
+old
+
+```xml
+<settings>
+<proxies>
+  <proxy>
+    <id>proxy</id>
+    <active>false</active>
+    <protocol>http</protocol>
+    <host>proxy.fujinet.vn</host>
+    <port>8080</port>
+  </proxy>
+</proxies>
+
+<mirrors>
+    <mirror>
+        <id>central-no-ssl</id>
+        <name>Central without ssl</name>
+        <url>http://repo.maven.apache.org/maven2</url>
+        <mirrorOf>central</mirrorOf>
+    </mirror>
+  </mirrors>
+  
+</settings>
+<!-- Author: hung-pm -->
+
+```
+
+new in .m2
+
+```xml
+
+```
+
+
+
 ### 2. Adding Carousel in Index Page
 ### 3. Adding More Pictures
 ### 4. Adding Featured-books and Non-responsive CSS
@@ -103,6 +173,33 @@ C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/
 ### 4. Bookstore - Finish Checkout Order
 ### 5. Bookstore - Fix UpdateUserInfo
 ### 6. Bookstore - Debugging Submitting Order and Email
+
+
+
+## 10. Some More Features
+
+### 1. Bookstore - Add View Order Detail Template
+
+### 2. Bookstore - Add Order Detail Controller
+
+### 3. AdminPortal - Import Book Data
+
+### 4. Bookstore - Scenario Testing and Bug Fixing
+
+### 5. AdminPortal - Add Delete Book Functionality
+
+### 6. AdminPortal - Finish Up Deleting
+
+### 7. Bookstore - Some Other Enhancement
+
+### 8. Bookstore - Add SearchByCategory Logic
+
+### 9. Bookstore - Fuzzy Search
+
+## 11. Wrap Up
+
+### 1. Closing
+
 ======== list file ========
 
 Process finished with exit code 0
