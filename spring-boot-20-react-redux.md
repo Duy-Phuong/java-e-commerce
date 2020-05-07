@@ -816,7 +816,48 @@ controller
 
 ### 12. Find All Projects - branch9
 
+repository
 
+```java
+	@Override
+    Iterable<Project> findAll();
+```
+
+service
+
+```java
+public Iterable<Project> findAllProjects(){
+        return projectRepository.findAll();
+    }
+
+public void deleteProjectByIdentifier(String projectid){
+        Project project = projectRepository.findByProjectIdentifier(projectid.toUpperCase());
+
+        if(project == null){
+            throw  new  ProjectIdException("Cannot Project with ID '"+projectid+"'. This project does not exist");
+        }
+
+        projectRepository.delete(project);
+    }
+```
+
+controller
+
+```java
+@GetMapping("/all")
+    public Iterable<Project> getAllProjects(){return projectService.findAllProjects();}
+
+@DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable String projectId){
+        projectService.deleteProjectByIdentifier(projectId);
+
+        return new ResponseEntity<String>("Project with ID: '"+projectId+"' was deleted", HttpStatus.OK);
+    }
+```
+
+http://localhost:8080/api/project/Id03
+
+http://localhost:8080/api/project/all
 
 ### 12.1 branch9.html
 
@@ -825,6 +866,21 @@ controller
 ### 13.1 branch10.html
 
 ### 14. Update an existing project
+
+JPA update cho chúng ta nên chỉ cần truyền id vào là được
+
+data
+
+```json
+{
+	"id": "1",
+	"projectName": "DMM",
+	"projectIdentifier": "ID01",
+	"description": "a new project update"
+}
+```
+
+![image-20200507203806764](spring-boot-20-react-redux.assets/image-20200507203806764.png)
 
 ## 3. React & Redux Front-end Project CRUD Operations
 ### 1. Introduction to React and Redux
