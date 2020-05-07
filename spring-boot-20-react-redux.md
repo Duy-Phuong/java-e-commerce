@@ -197,30 +197,626 @@ In the next video, we are going to create our object and test whether or not the
 Thank you for your attention.
 
 ### 4. Project Object & Project Repository- branch1
+
+Project.java
+
+```java
+package io.agileintelligence.ppmtool.domain;
+
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Entity
+public class Project {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String projectName;
+    private String projectIdentifier;
+    private String description;
+    private Date start_date;
+    private Date end_date;
+
+    private Date created_At;
+    private Date updated_At;
+
+    public Project() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getProjectIdentifier() {
+        return projectIdentifier;
+    }
+
+    public void setProjectIdentifier(String projectIdentifier) {
+        this.projectIdentifier = projectIdentifier;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getStart_date() {
+        return start_date;
+    }
+
+    public void setStart_date(Date start_date) {
+        this.start_date = start_date;
+    }
+
+    public Date getEnd_date() {
+        return end_date;
+    }
+
+    public void setEnd_date(Date end_date) {
+        this.end_date = end_date;
+    }
+
+    public Date getCreated_At() {
+        return created_At;
+    }
+
+    public void setCreated_At(Date created_At) {
+        this.created_At = created_At;
+    }
+
+    public Date getUpdated_At() {
+        return updated_At;
+    }
+
+    public void setUpdated_At(Date updated_At) {
+        this.updated_At = updated_At;
+    }
+
+    @PrePersist
+    protected void onCreate(){
+        this.created_At = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.updated_At = new Date();
+    }
+
+}
+
+```
+
+Thêm PrePersist và PreUpdate
+
+ProjectRepository.java
+
+```java
+package io.agileintelligence.ppmtool.repositories;
+
+import io.agileintelligence.ppmtool.domain.Project;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ProjectRepository extends CrudRepository<Project, Long> {
+
+    @Override
+    Iterable<Project> findAllById(Iterable<Long> iterable);
+}
+
+```
+
+Config connect to mysql
+
+```pro
+spring.thymeleaf.cache=false
+
+
+# ===============================
+# = DATA SOURCE
+# ===============================
+
+# Set here configurations for the database connection
+spring.datasource.url=jdbc:mysql://localhost:3306/ppmtool
+
+# Username and secret
+spring.datasource.username=root
+spring.datasource.password=1234
+
+# Keep the connection alive if idle for a long time (needed in production)
+spring.datasource.testWhileIdle = true
+spring.datasource.validationQuery = SELECT 1
+
+
+# ===============================
+# = JPA / HIBERNATE
+# ===============================
+
+# Use spring.jpa.properties.* for Hibernate native properties (the prefix is
+# stripped before adding them to the entity manager).
+
+# Show or not log for each sql query
+spring.jpa.show-sql=true
+
+# Hibernate ddl auto (create, create-drop, update): with "update" the database
+# schema will be automatically updated accordingly to java entities found in
+# the project
+spring.jpa.hibernate.ddl-auto = update
+
+# Allows Hibernate to generate SQL optimized for a particular DBMS
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
+
+
+```
+
+Run app và check db thấy table person được tạo mới
+
 ### 4.1 branch1.html
 
-
+https://github.com/AgileIntelligence/AgileIntPPMTool/tree/branch1
 
 ### 5. Project Service & Project Controller  Create first project - branch2
+
+service/ProjectService
+
+```java
+package io.agileintelligence.ppmtool.services;
+
+import io.agileintelligence.ppmtool.domain.Project;
+import io.agileintelligence.ppmtool.repositories.ProjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProjectService {
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    public Project saveOrUpdateProject(Project project){
+
+        //Logic
+
+        return projectRepository.save(project);
+    }
+
+}
+
+```
+
+web/ProjectController
+
+```java
+package io.agileintelligence.ppmtool.web;
+
+
+import io.agileintelligence.ppmtool.domain.Project;
+import io.agileintelligence.ppmtool.services.ProjectService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/project")
+public class ProjectController {
+
+    @Autowired
+    private ProjectService projectService;
+
+
+    @PostMapping("")
+    public ResponseEntity<Project> createNewProject(@RequestBody Project project){
+        Project project1 = projectService.saveOrUpdateProject(project);
+        return new ResponseEntity<Project>(project, HttpStatus.CREATED);
+    }
+}
+
+```
+
+data test post man
+
+```json
+{
+	"projectName": "DMM",
+	"projectIdentifier": "DMM",
+	"description": "a new project"
+}
+```
+
+http://localhost:8080/api/project/
+
+![image-20200507160844273](spring-boot-20-react-redux.assets/image-20200507160844273.png)  
+
+
+
+![image-20200507160949526](spring-boot-20-react-redux.assets/image-20200507160949526.png)
+
 ### 5.1 branch2.html
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/tree/branch2
+
 ### 6. Set up project object validation - branch3
+
+Project
+
+```java
+package io.agileintelligence.ppmtool.domain;
+
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.util.Date;
+
+@Entity
+public class Project {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @NotBlank(message = "Project name is required")
+    private String projectName;
+    @NotBlank(message ="Project Identifier is required")
+    @Size(min=4, max=5, message = "Please use 4 to 5 characters")
+    @Column(updatable = false, unique = true)
+    private String projectIdentifier;
+    @NotBlank(message = "Project description is required")
+    private String description;
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date start_date;
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date end_date;
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date created_At;
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date updated_At;
+
+    
+
+    @PrePersist
+    protected void onCreate(){
+        this.created_At = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.updated_At = new Date();
+    }
+
+}
+
+```
+
+
+
 ### 6.1 branch3.html
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/tree/branch3
+
 ### 7. Project Object Validation part1 - branch4
+
+Nếu để {} => server trả về lỗi 500
+
+![image-20200507162148736](spring-boot-20-react-redux.assets/image-20200507162148736.png)
+
+Thêm annotation @Valid
+
+![image-20200507162330925](spring-boot-20-react-redux.assets/image-20200507162330925.png)
+
+ProjectController.java
+
+```java
+package io.agileintelligence.ppmtool.web;
+
+
+import io.agileintelligence.ppmtool.domain.Project;
+import io.agileintelligence.ppmtool.services.ProjectService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/project")
+public class ProjectController {
+
+    @Autowired
+    private ProjectService projectService;
+
+
+    @PostMapping("")
+    public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result){
+
+        if(result.hasErrors()){
+         //   return new ResponseEntity<String>("errorMap", HttpStatus.BAD_REQUEST);
+            
+        //
+            Map<String, String> errorMap = new HashMap<>();
+
+            for(FieldError error: result.getFieldErrors()){
+                errorMap.put(error.getField(), error.getDefaultMessage());
+            }
+            return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+        }
+
+
+
+        Project project1 = projectService.saveOrUpdateProject(project);
+        return new ResponseEntity<Project>(project1, HttpStatus.CREATED);
+    }
+}
+
+```
+
+![image-20200507163920359](spring-boot-20-react-redux.assets/image-20200507163920359.png)
+
 ### 7.1 branch4.html
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/tree/branch4
+
 ### 8. Project Object Validation part2 - branch5
+
+![image-20200507163803171](spring-boot-20-react-redux.assets/image-20200507163803171.png)
+
 ### 8.1 branch5.html
 ### 9. Refactor Project Controller -branch6
+
+MapValidationErrorService.java
+
+```java
+package io.agileintelligence.ppmtool.services;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class MapValidationErrorService {
+
+    public ResponseEntity<?> MapValidationService(BindingResult result){
+
+        if(result.hasErrors()){
+            Map<String, String> errorMap = new HashMap<>();
+
+            for(FieldError error: result.getFieldErrors()){
+                errorMap.put(error.getField(), error.getDefaultMessage());
+            }
+            return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+        }
+
+        return null;
+
+    }
+}
+
+```
+
+ProjectController
+
+```java
+@PostMapping("")
+    public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result){
+
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if(errorMap!=null) return errorMap;
+
+        Project project1 = projectService.saveOrUpdateProject(project);
+        return new ResponseEntity<Project>(project1, HttpStatus.CREATED);
+    }
+```
+
+
+
+
+
+Nếu pass cùng ID 
+
+![image-20200507164418044](spring-boot-20-react-redux.assets/image-20200507164418044.png)
+
 ### 9.1 branch6.html
 
 ### 10. Custom Exceptions for Unique Project Identifiers - branch7
+
+Khi update nó k đợi check trong db có id chưa 
+
+Create package exceptions
+
+ProjectIdExceptionResponse.java
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+public class ProjectIdExceptionResponse {
+
+    // name of field is displayed
+    private String projectIdentifier;
+
+    public ProjectIdExceptionResponse(String projectIdentifier) {
+        this.projectIdentifier = projectIdentifier;
+    }
+
+    public String getProjectIdentifier() {
+        return projectIdentifier;
+    }
+
+    public void setProjectIdentifier(String projectIdentifier) {
+        this.projectIdentifier = projectIdentifier;
+    }
+}
+
+```
+
+ProjectIdException.java
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class ProjectIdException extends RuntimeException {
+
+    public ProjectIdException(String message) {
+        super(message);
+    }
+}
+
+```
+
+CustomResponseEntityExceptionHandler.java
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+@ControllerAdvice
+@RestController
+public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler
+    public final ResponseEntity<Object> handleProjectIdException(ProjectIdException ex, WebRequest request){
+        ProjectIdExceptionResponse exceptionResponse = new ProjectIdExceptionResponse(ex.getMessage());
+        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+}
+
+```
+
+ProjectService.java
+
+```java
+package io.agileintelligence.ppmtool.services;
+
+import io.agileintelligence.ppmtool.domain.Project;
+import io.agileintelligence.ppmtool.exceptions.ProjectIdException;
+import io.agileintelligence.ppmtool.repositories.ProjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProjectService {
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    public Project saveOrUpdateProject(Project project){
+        // add
+        try{
+            project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+            return projectRepository.save(project);
+        }catch (Exception e){
+            throw new ProjectIdException("Project ID '"+project.getProjectIdentifier().toUpperCase()+"' already exists");
+        }
+
+    }
+
+}
+
+```
+
+![image-20200507173654269](spring-boot-20-react-redux.assets/image-20200507173654269.png)
 
 ### 10.1 branch7.html
 
 ### 11. Find Project by Identifier - branch8
 
+ProjectRepository.java
+
+```java
+
+@Repository
+public interface ProjectRepository extends CrudRepository<Project, Long> {
+	// Gõ findBy và tên id will display prompt
+    Project findByProjectIdentifier(String projectId);
+}
+
+```
+
+Service
+
+```java
+public Project findProjectByIdentifier(String projectId){
+
+        Project project = projectRepository.findByProjectIdentifier(projectId.toUpperCase());
+
+        if(project == null){
+            throw new ProjectIdException("Project ID '"+projectId+"' does not exist");
+
+        }
+
+
+        return project;
+    }
+```
+
+controller
+
+```java
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<?> getProjectById(@PathVariable String projectId){
+
+        Project project = projectService.findProjectByIdentifier(projectId);
+
+        return new ResponseEntity<Project>(project, HttpStatus.OK);
+    }
+```
+
+
+
 ### 11.1 branch8.html
 
 ### 12. Find All Projects - branch9
+
+
 
 ### 12.1 branch9.html
 
