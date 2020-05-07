@@ -884,52 +884,286 @@ data
 
 ## 3. React & Redux Front-end Project CRUD Operations
 ### 1. Introduction to React and Redux
-### 10. IMPORTANT React + Redux Architecture and Support
-### 11. Create Redux Store - branch18
-### 11.1 branch18.html
-### 12. Create Project from React - branch19
-### 12.1 branch19.html
-### 13. Get validation errors from Redux - branch20
-### 13.1 branch20.html
-### 14. Style validation errors with classnames - branch21
-### 14.1 branch21.html
-### 15. Get Projects - redux only - branch22
-### 15.1 branch22 - made offline changes, check both commit 3e53bc8  and 1 parent 71370a3.html
-### 16. Get Projects - final step - branch23
-### 16.1 branch23.html
-### 17. Update Project use case architecture
-### 18. Update Project form and route
-### 18.1 branch24.html
-### 19. Get Project by Id, Update use case part 1 - commit id b13741f
-### 19.1 commit.html
+
+#### POTENTIAL ISSUE- create-react-app as of January 2020
+
+If you run into a message like this when using create-react-app:
+
+```
+Creating a new React app in /Users/user/Desktop/my-app. Installing packages. This might take a couple of minutes.Installing react, react-dom, and react-scripts........ nothing out of the ordinary here .....✨  Done in 27.28s. A template was not provided. This is likely because you're using an outdated version of create-react-app.Please note that global installs of create-react-app are no longer supported.
+```
+
+
+
+Then please make sure that you try one of following commands instead of the one shown in the lecture
+
+https://stackoverflow.com/questions/59188624/template-not-provided-using-create-react-app
+
+```shell
+npx create-react-app my-app
+npm init react-app my-app
+```
+
 ### 2. Set up development Environment for React Development
-### 20. Persist Project Object Updates - branch26
-### 20.1 branch26.html
-### 20.2 branch26.html
-### 21. Handle Errors in UpdateProject.js  - branch27
-### 21.1 branch27.html
-### 22. BUG FIX Strange Update Behaviour
-### 22.1 branch28.html
-### 23. Delete Project Architecture
-### 24. Delete an existing project - branch29
-### 24.1 branch29.html
-### 25. Refactor Delete Operation and Proxy
-### 25.1 branch30.html
+
+![image-20200507211006960](spring-boot-20-react-redux.assets/image-20200507211006960.png)
+
+Vào setting check format on save
+
+Ấn CTRL ,
+
+![image-20200507211458444](spring-boot-20-react-redux.assets/image-20200507211458444.png)
+
+![image-20200507211807035](spring-boot-20-react-redux.assets/image-20200507211807035.png)  
+
+Edit setting.json
+
+```js
+"emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  }
+```
+
+
+
 ### 3. Create and review Boiler Plate react app - branch11
+
+```shell
+create-react-app ppmtool-react-client
+
+```
+
+
+
 ### 3.1 branch11.html
 ### 4. first react component - branch12
+
+Tạo folder components/Dashboard
+
+Gõ rccc => create component
+
+Dashboard
+
+```js
+import React, { Component } from "react";
+
+class Dashboard extends Component {
+  render() {
+    return <h1>Welcome to the Dashboard</h1>;
+  }
+}
+
+export default Dashboard;
+
+```
+
+
+
 ### 4.1 branch12.html
+
 ### 5. Project and header components - branch13
+
+Layout/Header.js
+
+```js
+import React, { Component } from "react";
+
+class Header extends Component {
+  render() {
+    return (
+      <div>
+        <h1>Navbar</h1>
+      </div>
+    );
+  }
+}
+
+export default Header;
+
+```
+
+Project/ProjectItem.js
+
+```js
+import React, { Component } from "react";
+
+class ProjectItem extends Component {
+  render() {
+    return <h1>Project Item</h1>;
+  }
+}
+
+export default ProjectItem;
+
+```
+
+Dashboard.js
+
+```js
+import React, { Component } from "react";
+import ProjectItem from "./Project/ProjectItem";
+
+class Dashboard extends Component {
+  render() {
+    return (
+      <div>
+        <h1>Welcome to the Dashboard</h1>
+        <ProjectItem />
+        <ProjectItem />
+        <ProjectItem />
+      </div>
+    );
+  }
+}
+
+export default Dashboard;
+
+```
+
+App.js
+
+```js
+import React, { Component } from "react";
+import "./App.css";
+import Dashboard from "./components/Dashboard";
+import Header from "./components/Layout/Header";
+
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <Header />
+        <Dashboard />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+```
+
+
+
 ### 5.1 branch13.html
 ### 6. Bringing Bootstrap 4+ - branch14
+
+`npm install bootstrap`
+
+App.js
+
+```js
+import React, { Component } from "react";
+import "./App.css";
+import Dashboard from "./components/Dashboard";
+import Header from "./components/Layout/Header";
+// add
+import "bootstrap/dist/css/bootstrap.min.css";
+
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <Header />
+        <Dashboard />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+```
+
+Dashboard
+
+```js
+        <h1 className="alert alert-warning">Welcome to the Dashboard</h1>
+
+```
+
 ### 6.1 branch14.html
 ### 7. Style our Dashboard, Navbar, ProjectItem - branch15
+
+Override app.css
+
+Copy NavBar trong Dashboard vào Header
+
+
+
+
+
+![image-20200507214647429](spring-boot-20-react-redux.assets/image-20200507214647429.png)
+
 ### 7.1 branch15.html
 ### 8. React Router, first Functional component - branch16
 ### 8.1 branch16.html
 ### 9. AddProject Component - controlled form - branch 17
 ### 9.1 ReactJS documentation on controlled forms.html
 ### 9.2 branch17.html
+
+
+
+### 10. IMPORTANT React + Redux Architecture and Support
+
+### 11. Create Redux Store - branch18
+
+### 11.1 branch18.html
+
+### 12. Create Project from React - branch19
+
+### 12.1 branch19.html
+
+### 13. Get validation errors from Redux - branch20
+
+### 13.1 branch20.html
+
+### 14. Style validation errors with classnames - branch21
+
+### 14.1 branch21.html
+
+### 15. Get Projects - redux only - branch22
+
+### 15.1 branch22 - made offline changes, check both commit 3e53bc8  and 1 parent 71370a3.html
+
+### 16. Get Projects - final step - branch23
+
+### 16.1 branch23.html
+
+### 17. Update Project use case architecture
+
+### 18. Update Project form and route
+
+### 18.1 branch24.html
+
+### 19. Get Project by Id, Update use case part 1 - commit id b13741f
+
+### 19.1 commit.html
+
+### 20. Persist Project Object Updates - branch26
+
+### 20.1 branch26.html
+
+### 20.2 branch26.html
+
+### 21. Handle Errors in UpdateProject.js  - branch27
+
+### 21.1 branch27.html
+
+### 22. BUG FIX Strange Update Behaviour
+
+### 22.1 branch28.html
+
+### 23. Delete Project Architecture
+
+### 24. Delete an existing project - branch29
+
+### 24.1 branch29.html
+
+### 25. Refactor Delete Operation and Proxy
+
+### 25.1 branch30.html
+
 ## 4. Add Project Tasks - Backend
 ### 1. Backlog and ProjectTask Entities - branch31
 ### 1.1 branch31.html
