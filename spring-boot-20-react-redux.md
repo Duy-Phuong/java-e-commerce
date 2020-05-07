@@ -15,7 +15,37 @@ C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/
 
 ### 2. IMPORTANT BROWSERS FOR THIS COURSE.html
 
+#### `**IF YOU ARE JUST STARTING OUT, PLEASE READ THE WHOLE ARTICLE**`
 
+
+
+```
+UPDATE:
+```
+
+***THESE ISSUES HAVE BEEN RESOLVED***
+
+Please wait until you get to those sections of the course so it is not out of context, you need chrome with extensions for the development phase anyway:
+
+
+
+FIX #1: https://www.udemy.com/full-stack-project-spring-boot-20-react-redux/learn/v4/t/lecture/12143810?start=75
+
+FIX #2: https://www.udemy.com/full-stack-project-spring-boot-20-react-redux/learn/v4/t/lecture/12201742?start=0
+
+```
+INITIAL PROBLEM:
+```
+
+**Please note that this app works fine on: Firefox, Safari and Chrome. If you are on Chrome and it loads blank, then please install react dev tools and redux dev tools on Chrome. You need Chrome and these dev tools to follow the course.**
+
+https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en
+
+https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en
+
+**Please also note that this is a known issue in the React/Redux community:** https://github.com/reduxjs/redux/issues/2359
+
+**I'll be investigating how to configure the store for Internet Explorer and Edge, but for now in order to check the prototype in Heroku (**https://agileintppmtool.herokuapp.com/) **please use Chrome (with extensions) or Firefox (MacOS and Windows) or Safari (MacOS)**
 
 ### 3. WATCH BEFORE YOU BUY App Demo (Prototype)
 
@@ -27,30 +57,150 @@ C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/
 
 ### 4. WATCH BEFORE YOU BUY Requirements, IDEs, Support
 
+https://agileintppmtool.herokuapp.com/
+
+![image-20200507114829589](spring-boot-20-react-redux.assets/image-20200507114829589.png)
+
+123456
+
+![image-20200507114859098](spring-boot-20-react-redux.assets/image-20200507114859098.png)  
+
+![image-20200507115035457](spring-boot-20-react-redux.assets/image-20200507115035457.png)
+
+![image-20200507115050182](spring-boot-20-react-redux.assets/image-20200507115050182.png)
+
+![image-20200507115252651](spring-boot-20-react-redux.assets/image-20200507115252651.png)  
+
+![image-20200507115322458](spring-boot-20-react-redux.assets/image-20200507115322458.png)  
+
 
 
 ### 5. REVIEW BEFORE YOU START- Mindset and Course's scope.html
 
+Please have the right mindset for this course and for any other software development course that you are taking or planning to take.
 
+> #### **Here is a torpedo of truth:**
+
+#### **No** six-figure worth, debt-binding university degree, **no** hefty 5-figure worth coding bootcamp, **no** course or book **covers it all**. **No one does**, **no one can!**
+
+
+
+The times I have seen people trying to cover it all then one of two things happen:
+
+· A good chunk of those topics are covered in a very contrive and virtually useless way just to say “I covered it all”
+
+· And THE VERY FEW who did covered it all ended up releasing an ENDLESS course or book THAT NO ONE FINISHES ANYWAY!
+
+No project that I have ever worked on has ever used all of JAVA or all of any tech stack involved. In some projects you use some features, in some you use others. **This course is a project so we will only use and explain the features of the TECH STACK that we need to use in order for us to implement and \*manually\* test the functionality that is in scope.**
+
+**With that in mind, when you join this course you do so completely aware that anything that is not explicitly covered in this course is out of scope, no exceptions.** If you have recommendations, please let me know. Depending on the topic I might include it in upcoming courses or create a course on the matter.
+
+Software development courses should be seen as a “**gateway**” for you to grab new skills and also to have a better understanding of how far you want to go. No educational material should ever be seen as “All that you need for a brilliant Software Developer career”. They are all stepping stones for you to build your skills and compete in the job market.
+
+**Please have the right expectations at all times.**
 
 ## 2. Spring Backend - Basic CRUD Operations - Project
 ### 1. IMPORTANT PLEASE USE JAVA 8.html
-### 10. Custom Exceptions for Unique Project Identifiers - branch7
-### 10.1 branch7.html
-### 11. Find Project by Identifier - branch8
-### 11.1 branch8.html
-### 12. Find All Projects - branch9
-### 12.1 branch9.html
-### 13. Delete an existing project - branch10
-### 13.1 branch10.html
-### 14. Update an existing project
+
+Hi Team: `***\**No TLDR!!! This is important, make sure you scroll all the way down\**\***`
+
+In the next video you will notice that I set my project to work with Java 8. Please make sure that you are using Java 8 in you environment for this project.
+
+**How can I check this?**
+
+In your terminal please run the following command: java -version
+
+If you see anything that is **not** Java 8, then you need to set your env to this version.
+
+In case you need to have several versions of Java in you env, a good option, that I personally use, is sdkman.io, this allows you to install the versions of Java that you need and jump from one to the other when needed. again: sdkman.io. You need to read the documentation and install it properly, **please note that supporting this is not in the scope of this course**. Follow the instructions and you should be fine.
+
+***Why is that, I mean Java 9 and Java 10 are out? Why not use the latest?\***
+
+First let me say this, Java 8 is an LTS (Long term support) version of Java, while Java 9 and 10 are actually non-LTS, moreover Oracle is not even supporting them anymore. Java 9 was supported until March 2018 and 10 was supported until September 2018, see for yourselves: https://www.oracle.com/technetwork/java/javase/eol-135779.html.
+
+It is a common recommendation to always stick to LTS versions of the stack you are using. With java 9 there is a lot that breaks (google it, many complains about this particular version) and too many work arounds required. We are not doing anything that requires features in Java 9 or 10 so please refrain from using those versions for this project.
+
+Please stick with Java 8 for now. Once the landscape is clearer around Java11 (Released on September 2018) then I will be sure to update you all accordingly.
+
+**Issues running spring-boot 2.0 on Java 9:** https://github.com/**spring-projects**/**spring-boot**/issues/12462
+
+### 
 ### 2. Folder Structure and Github setup
+
+https://start.spring.io/
+
+hoặc có thể dùng intelliji
+
+Adding screenshot from latest 2019.2 IDEA Ultimate Edition:
+
+- Go to `File -> Settings -> Plugins`
+- search for `spring boot` under `Installed` plugins list
+- Press the `Enable` button
+- Restart IDE
+
+https://stackoverflow.com/questions/32476228/intellij-spring-initializr-not-available
+
+![image-20200507144331578](spring-boot-20-react-redux.assets/image-20200507144331578.png)
+
+![image-20200507144823022](spring-boot-20-react-redux.assets/image-20200507144823022.png)  
+
+![image-20200507145030712](spring-boot-20-react-redux.assets/image-20200507145030712.png)  
+
+Chọn location D:\Source\spring boot\ppmtool
+
+```shell
+git branch
+git branch branch0
+git checkout branch0
+git push --set-upstream origin branch0
+git merge branch0 # merge to master
+git push
+
+```
+
+
+
+
+
 ### 2.1 branch0.html
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/tree/branch0
+
 ### 2.2 Initial Repository.html
+
+https://github.com/AgileIntelligence/ppmtool
+
 ### 2.3 Git Branch Tutorial.html
+
+https://www.atlassian.com/git/tutorials/using-branches
+
 ### 3. IMPORTANT - READ THROUGH About H2 Database.html
+
+**Please read through.**
+
+In the next video, we are going to create our object and test whether or not the table gets created in the H2 database. I have received an unexpected number of reports that after opening the H2 database console, the table is not present.
+
+**I want to clarify the following pointers:**
+
+1. I want to remind you, that **previous basic experience with the Spring Framework is expected for this course**. This was clearly discussed in the **"WATCH BEFORE YOU BUY: Requirements, IDEs, Support"** video **(Do not skip this video)**
+
+   https://www.udemy.com/full-stack-project-spring-boot-20-react-redux/learn/v4/t/lecture/11792132/?instructorPreviewMode=student_v4
+
+2. You need to make sure that you have **the correct folder structure for your Spring Boot project**
+
+3. Check the **Q&A in this lecture**, read through, and **try a different JDBC URL** if the one out of the box doesn't work for you
+
+4. Make sure that you have the right **@Entity import (Please, check your code against mine)**
+
+5. Finally, since you have previous experience, **do not get hung up on the H2 database not working** (which should not be the case) **just set up MySQL or any other DB that you are already comfortable with**. Later in the course we will set up MySQL anyway.
+
+Thank you for your attention.
+
 ### 4. Project Object & Project Repository- branch1
 ### 4.1 branch1.html
+
+
+
 ### 5. Project Service & Project Controller  Create first project - branch2
 ### 5.1 branch2.html
 ### 6. Set up project object validation - branch3
@@ -61,6 +211,25 @@ C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/
 ### 8.1 branch5.html
 ### 9. Refactor Project Controller -branch6
 ### 9.1 branch6.html
+
+### 10. Custom Exceptions for Unique Project Identifiers - branch7
+
+### 10.1 branch7.html
+
+### 11. Find Project by Identifier - branch8
+
+### 11.1 branch8.html
+
+### 12. Find All Projects - branch9
+
+### 12.1 branch9.html
+
+### 13. Delete an existing project - branch10
+
+### 13.1 branch10.html
+
+### 14. Update an existing project
+
 ## 3. React & Redux Front-end Project CRUD Operations
 ### 1. Introduction to React and Redux
 ### 10. IMPORTANT React + Redux Architecture and Support
