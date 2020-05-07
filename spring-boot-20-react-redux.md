@@ -1089,6 +1089,150 @@ Override app.css
 
 Copy NavBar trong Dashboard vào Header
 
+Header.js
+
+```js
+import React, { Component } from "react";
+
+class Header extends Component {
+  render() {
+    return (
+      <nav className="navbar navbar-expand-sm navbar-dark bg-primary mb-4">
+        <div className="container">
+          <a className="navbar-brand" href="Dashboard.html">
+            Personal Project Management Tool
+          </a>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#mobile-nav"
+          >
+            <span className="navbar-toggler-icon" />
+          </button>
+
+          <div className="collapse navbar-collapse" id="mobile-nav">
+            <ul className="navbar-nav mr-auto">
+              <li className="nav-item">
+                <a className="nav-link" href="/dashboard">
+                  Dashboard
+                </a>
+              </li>
+            </ul>
+
+            <ul className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <a className="nav-link " href="register.html">
+                  Sign Up
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="login.html">
+                  Login
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+}
+
+export default Header;
+
+```
+
+ProjectItem.js
+
+```js
+import React, { Component } from "react";
+
+class ProjectItem extends Component {
+  render() {
+    return (
+      <div className="container">
+        <div className="card card-body bg-light mb-3">
+          <div className="row">
+            <div className="col-2">
+              <span className="mx-auto">REACT</span>
+            </div>
+            <div className="col-lg-6 col-md-4 col-8">
+              <h3>Spring / React Project</h3>
+              <p>Project to create a Kanban Board with Spring Boot and React</p>
+            </div>
+            <div className="col-md-4 d-none d-lg-block">
+              <ul className="list-group">
+                <a href="#">
+                  <li className="list-group-item board">
+                    <i className="fa fa-flag-checkered pr-1"> Project Board </i>
+                  </li>
+                </a>
+                <a href="#">
+                  <li className="list-group-item update">
+                    <i className="fa fa-edit pr-1"> Update Project Info</i>
+                  </li>
+                </a>
+                <a href="">
+                  <li className="list-group-item delete">
+                    <i className="fa fa-minus-circle pr-1"> Delete Project</i>
+                  </li>
+                </a>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default ProjectItem;
+
+```
+
+Dashboard.js
+
+```js
+import React, { Component } from "react";
+import ProjectItem from "./Project/ProjectItem";
+
+class Dashboard extends Component {
+  render() {
+    return (
+      <div className="projects">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <h1 className="display-4 text-center">Projects</h1>
+              <br />
+              <a href="ProjectForm.html" className="btn btn-lg btn-info">
+                Create a Project
+              </a>
+              <br />
+              <hr />
+              <ProjectItem />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Dashboard;
+
+```
+
+index.html
+
+```html
+// thêm
+ <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous">
+  <title>PPM Tool</title>
+```
+
 
 
 
@@ -1097,16 +1241,289 @@ Copy NavBar trong Dashboard vào Header
 
 ### 7.1 branch15.html
 ### 8. React Router, first Functional component - branch16
+
+`npm install react-router-dom`
+
+CreateProjectButton.js
+
+```js
+import React from "react";
+import { Link } from "react-router-dom";
+
+const CreateProjectButton = () => {
+  return (
+    <React.Fragment>
+      <Link to="/addProject" className="btn btn-lg btn-info">
+        Create a Project
+      </Link>
+    </React.Fragment>
+  );
+};
+
+export default CreateProjectButton;
+
+```
+
+App.js
+
+```js
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import AddProject from "./components/Project/AddProject";
+
+class App extends Component {
+  render() {
+    return (
+      <Router>
+        <div className="App">
+          <Header />
+          <Route exact path="/dashboard" component={Dashboard} />
+          <Route exact path="/addProject" component={AddProject} />
+        </div>
+      </Router>
+    );
+  }
+}
+```
+
+AddProject
+
+```js
+import React, { Component } from "react";
+
+class AddProject extends Component {
+  render() {
+    return (
+      <div>
+        <h1>Add Project Form</h1>
+      </div>
+    );
+  }
+}
+
+export default AddProject;
+
+```
+
+Khi ấn vào button navigate to Add Project page
+
 ### 8.1 branch16.html
 ### 9. AddProject Component - controlled form - branch 17
+
+AddProject
+
+```js
+import React, { Component } from "react";
+
+class AddProject extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      projectName: "",
+      projectIdentifier: "",
+      description: "",
+      start_date: "",
+      end_date: ""
+    };
+
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const newProject = {
+      projectName: this.state.projectName,
+      projectIdentifier: this.state.projectIdentifier,
+      description: this.state.description,
+      start_date: this.state.start_date,
+      end_date: this.state.end_date
+    };
+
+    console.log(newProject);
+  }
+
+  render() {
+    return (
+      <div>
+        {
+          //check name attribute input fields
+          //create constructor
+          //set state
+          //set value on input fields
+          //create onChange function
+          //set onChange on each input field
+          //bind on constructor
+          //check state change in the react extension
+        }
+
+        <div className="project">
+          <div className="container">
+            <div className="row">
+              <div className="col-md-8 m-auto">
+                <h5 className="display-4 text-center">Create Project form</h5>
+                <hr />
+                <form onSubmit={this.onSubmit}>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control form-control-lg "
+                      placeholder="Project Name"
+                      name="projectName"
+                      value={this.state.projectName}
+                      onChange={this.onChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control form-control-lg"
+                      placeholder="Unique Project ID"
+                      name="projectIdentifier"
+                      value={this.state.projectIdentifier}
+                      onChange={this.onChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <textarea
+                      className="form-control form-control-lg"
+                      placeholder="Project Description"
+                      name="description"
+                      value={this.state.description}
+                      onChange={this.onChange}
+                    />
+                  </div>
+                  <h6>Start Date</h6>
+                  <div className="form-group">
+                    <input
+                      type="date"
+                      className="form-control form-control-lg"
+                      name="start_date"
+                      value={this.state.start_date}
+                      onChange={this.onChange}
+                    />
+                  </div>
+                  <h6>Estimated End Date</h6>
+                  <div className="form-group">
+                    <input
+                      type="date"
+                      className="form-control form-control-lg"
+                      name="end_date"
+                      value={this.state.end_date}
+                      onChange={this.onChange}
+                    />
+                  </div>
+
+                  <input
+                    type="submit"
+                    className="btn btn-primary btn-block mt-4"
+                  />
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default AddProject;
+
+```
+
+add on change and submit data test
+
 ### 9.1 ReactJS documentation on controlled forms.html
+
+https://reactjs.org/docs/forms.html
+
 ### 9.2 branch17.html
-
-
 
 ### 10. IMPORTANT React + Redux Architecture and Support
 
+![image-20200507221537731](spring-boot-20-react-redux.assets/image-20200507221537731.png)  
+
+![image-20200507221745630](spring-boot-20-react-redux.assets/image-20200507221745630.png)
+
 ### 11. Create Redux Store - branch18
+
+`npm i redux react-redux redux-thunk axios `
+
+store.js
+
+```js
+import { createStore, applyMiddleware, compose } from "redux";
+import thunk from "redux-thunk";
+import rootReducer from "./reducers";
+
+const initalState = {};
+const middleware = [thunk];
+
+let store;
+
+if (window.navigator.userAgent.includes("Chrome")) {
+  store = createStore(
+    rootReducer,
+    initalState,
+    compose(
+      applyMiddleware(...middleware),
+      window.__REDUX_DEVTOOLS_EXTENSION__ &&
+        window.__REDUX_DEVTOOLS_EXTENSION__()
+    )
+  );
+} else {
+  store = createStore(
+    rootReducer,
+    initalState,
+    compose(applyMiddleware(...middleware))
+  );
+}
+
+export default store;
+
+```
+
+reducer/index.js
+
+```js
+import { combineReducers } from "redux";
+
+export default combineReducers({});
+
+```
+
+App.js
+
+```js
+import { Provider } from "react-redux"; // add
+import store from "./store";
+
+class App extends Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <Router>
+          <div className="App">
+            <Header />
+            <Route exact path="/dashboard" component={Dashboard} />
+            <Route exact path="/addProject" component={AddProject} />
+          </div>
+        </Router>
+      </Provider>
+    );
+  }
+}
+
+```
+
+
+
+
 
 ### 11.1 branch18.html
 
