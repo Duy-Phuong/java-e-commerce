@@ -53,7 +53,7 @@ Check
 
 ![image-20200506081903586](java-e-commerce.assets/image-20200506081903586.png)  
 
-Khi mới tạo file pom.xml bị lỗi
+### Khi mới tạo file pom.xml bị lỗi
 
 http://maven.apache.org/settings.html
 
@@ -1043,7 +1043,7 @@ spring.datasource.url=jdbc:mysql://localhost:3306/bookstoredatabase
 
 # Username and secret
 spring.datasource.username=root
-spring.datasource.password=sesame
+spring.datasource.password=1234
 
 # Keep the connection alive if idle for a long time (needed in production)
 spring.datasource.testWhileIdle = true
