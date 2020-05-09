@@ -1529,9 +1529,138 @@ class App extends Component {
 
 ### 12. Create Project from React - branch19
 
+projectActions.js
+
+```js
+import axios from "axios";
+import { GET_ERRORS } from "./types";
+
+export const createProject = (project, history) => async dispatch => {
+  try {
+    const res = await axios.post("http://localhost:8080/api/project", project);
+    history.push("/dashboard");
+  } catch (err) {
+    dispatch({
+      type: GET_ERRORS,
+      payload: err.response.data
+    });
+  }
+};
+
+```
+
+errorReducer.js
+
+```js
+import { GET_ERRORS } from "../actions/types";
+
+const initialState = {};
+
+export default function(state = initialState, action) {
+  switch (action.type) {
+    case GET_ERRORS:
+      return action.payload;
+
+    default:
+      return state;
+  }
+}
+
+```
+
+index.js
+
+```js
+import { combineReducers } from "redux";
+import errorReducer from "./errorReducer";
+
+export default combineReducers({
+  errors: errorReducer
+});
+
+```
+
+AddProject
+
+```js
+onSubmit(e) {
+    e.preventDefault();
+    const newProject = {
+      projectName: this.state.projectName,
+      projectIdentifier: this.state.projectIdentifier,
+      description: this.state.description,
+      start_date: this.state.start_date,
+      end_date: this.state.end_date
+    };
+    // add
+    this.props.createProject(newProject, this.props.history);
+  }
+
+
+AddProject.propTypes = {
+  createProject: PropTypes.func.isRequired
+};
+
+export default connect(
+  null,
+  { createProject }
+)(AddProject);
+
+```
+
+![image-20200507224254664](spring-boot-20-react-redux.assets/image-20200507224254664.png)  
+
+```java
+@RestController
+@RequestMapping("/api/project")
+@CrossOrigin // add
+public class ProjectController 
+```
+
+
+
 ### 12.1 branch19.html
 
 ### 13. Get validation errors from Redux - branch20
+
+AddProject
+
+```js
+// state thêm field errors = {}
+
+//life cycle hooks
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+
+ render() {
+     // add
+    const { errors } = this.state;
+
+// add
+AddProject.propTypes = {
+  createProject: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  errors: state.errors
+});
+
+export default connect(
+  mapStateToProps,
+  { createProject }
+)(AddProject);
+
+```
+
+#### TypeError: Cannot read property 'apply' of undefined
+
+Khi chạy source client lên
+
+
 
 ### 13.1 branch20.html
 
