@@ -2351,17 +2351,239 @@ export const deleteProject = id => async dispatch => {
 
 ## 4. Add Project Tasks - Backend
 ### 1. Backlog and ProjectTask Entities - branch31
+
+Backlog
+
+```java
+package io.agileintelligence.ppmtool.domain;
+
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class Backlog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Integer PTSequence = 0;
+    private String projectIdentifier;
+
+    //OneToOne with project
+
+    //OneToMany projecttasks
+
+
+    public Backlog() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getPTSequence() {
+        return PTSequence;
+    }
+
+    public void setPTSequence(Integer PTSequence) {
+        this.PTSequence = PTSequence;
+    }
+
+    public String getProjectIdentifier() {
+        return projectIdentifier;
+    }
+
+    public void setProjectIdentifier(String projectIdentifier) {
+        this.projectIdentifier = projectIdentifier;
+    }
+}
+
+```
+
+ProjectTask
+
+```java
+package io.agileintelligence.ppmtool.domain;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.util.Date;
+
+@Entity
+public class ProjectTask {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(updatable = false)
+    private String projectSequence;
+    @NotBlank(message = "Please include a project summary")
+    private String summary;
+    private String acceptanceCriteria;
+    private String status;
+    private Integer priority;
+    private Date dueDate;
+    //ManyToOne with Backlog
+
+    @Column(updatable = false)
+    private String projectIdentifer;
+    private Date create_At;
+    private Date update_At;
+
+    public ProjectTask() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getProjectSequence() {
+        return projectSequence;
+    }
+
+    public void setProjectSequence(String projectSequence) {
+        this.projectSequence = projectSequence;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public String getAcceptanceCriteria() {
+        return acceptanceCriteria;
+    }
+
+    public void setAcceptanceCriteria(String acceptanceCriteria) {
+        this.acceptanceCriteria = acceptanceCriteria;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public Date getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public String getProjectIdentifer() {
+        return projectIdentifer;
+    }
+
+    public void setProjectIdentifer(String projectIdentifer) {
+        this.projectIdentifer = projectIdentifer;
+    }
+
+    public Date getCreate_At() {
+        return create_At;
+    }
+
+    public void setCreate_At(Date create_At) {
+        this.create_At = create_At;
+    }
+
+    public Date getUpdate_At() {
+        return update_At;
+    }
+
+    public void setUpdate_At(Date update_At) {
+        this.update_At = update_At;
+    }
+
+    @PrePersist
+    protected void onCreate(){
+        this.create_At = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.update_At = new Date();
+    }
+
+    @Override
+    public String toString() {
+        return "ProjectTask{" +
+                "id=" + id +
+                ", projectSequence='" + projectSequence + '\'' +
+                ", summary='" + summary + '\'' +
+                ", acceptanceCriteria='" + acceptanceCriteria + '\'' +
+                ", status='" + status + '\'' +
+                ", priority=" + priority +
+                ", dueDate=" + dueDate +
+                ", projectIdentifer='" + projectIdentifer + '\'' +
+                ", create_At=" + create_At +
+                ", update_At=" + update_At +
+                '}';
+    }
+}
+
+```
+
+
+
 ### 1.1 branch31.html
-### 10. Find ProjectTask by projectSequence (happy path)-branch38
-### 10.1 branch38.html
-### 11. Find ProjectTask by projectSequence wValidation - branch39
-### 11.1 branch39.html
-### 12. Update project task (happy path)-branch40
-### 12.1 branch40.html
-### 13. Finish up with update validation and delete - branch41
-### 13.1 branch41.html
-### 14. BUG FIX delete operation, improved backlogproject task rel - branch42
-### 14.1 branch42.html
+BacklogRepository
+
+```java
+package io.agileintelligence.ppmtool.repositories;
+
+import io.agileintelligence.ppmtool.domain.Backlog;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface BacklogRepository extends CrudRepository<Backlog, Long> {
+}
+
+```
+
+ProjectTaskRepository
+
+```java
+package io.agileintelligence.ppmtool.repositories;
+
+import io.agileintelligence.ppmtool.domain.ProjectTask;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ProjectTaskRepository extends CrudRepository<ProjectTask, Long> {
+}
+
+```
+
+
+
 ### 2. Entity Relationships Project and Backlog - branch32
 ### 2.1 branch32.html
 ### 3. Backlog - ProjectTask relationship - branch33
@@ -2376,6 +2598,27 @@ export const deleteProject = id => async dispatch => {
 ### 8. SET UP THE PROJECT TO USE MYSQL, NO MORE H2!
 ### 9. Handle Project Not Found Exception  Project Tasks-branch37
 ### 9.1 branch37.html
+
+### 10. Find ProjectTask by projectSequence (happy path)-branch38
+
+### 10.1 branch38.html
+
+### 11. Find ProjectTask by projectSequence wValidation - branch39
+
+### 11.1 branch39.html
+
+### 12. Update project task (happy path)-branch40
+
+### 12.1 branch40.html
+
+### 13. Finish up with update validation and delete - branch41
+
+### 13.1 branch41.html
+
+### 14. BUG FIX delete operation, improved backlogproject task rel - branch42
+
+### 14.1 branch42.html
+
 ## 5. Add Project Tasks - React  Redux
 ### 1. Intro to Section, Demo of what we are implementing
 ### 1.1 checkout the prototype in this demo.html
