@@ -1660,25 +1660,246 @@ export default connect(
 
 Khi chạy source client lên
 
+fix bằng cách
+
+store.js
+
+```js
+import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+import rootReducer from './reducers';
+import { composeWithDevTools } from 'redux-devtools-extension';
+
+const initalState = {};
+const middleware = [thunk];
+
+// let store;
+
+// if (window.navigator.userAgent.includes('Chrome')) {
+//   store = createStore(
+//     rootReducer,
+//     initalState,
+//     compose(
+//       applyMiddleware(...middleware),
+//       window.__REDUX_DEVTOOLS_EXTENSION__ &&
+//         window.__REDUX_DEVTOOLS_EXTENSION__()
+//     )
+//   );
+// } else {
+//   store = createStore(
+//     rootReducer,
+//     initalState,
+//     compose(applyMiddleware(...middleware))
+//   );
+// }
+
+const store = createStore(
+  rootReducer,
+  initalState,
+  composeWithDevTools(applyMiddleware(...middleware))
+);
+
+export default store;
+
+```
+
+
+
 
 
 ### 13.1 branch20.html
 
 ### 14. Style validation errors with classnames - branch21
 
+`npm install classnames`
+
+AddProject.js
+
+```js
+<form onSubmit={this.onSubmit}>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className={classnames("form-control form-control-lg", {
+                        "is-invalid": errors.projectName
+                      })}
+                      placeholder="Project Name"
+                      name="projectName"
+                      value={this.state.projectName}
+                      onChange={this.onChange}
+                    />
+                    {errors.projectName && (
+                      <div className="invalid-feedback">
+                        {errors.projectName}
+                      </div>
+                    )}
+                  </div>
+```
+
+Sau đó thực hiện tương tự với các field khác
+
 ### 14.1 branch21.html
 
 ### 15. Get Projects - redux only - branch22
 
+projectReducer.js
+
+```js
+import { GET_PROJECTS } from "../actions/types";
+
+const initialState = {
+  projects: [],
+  project: {}
+};
+
+export default function(state = initialState, action) {
+  switch (action.type) {
+    case GET_PROJECTS:
+      return {
+        ...state,
+        projects: action.payload
+      };
+    default:
+      return state;
+  }
+}
+
+```
+
+projectActions.js
+
+```js
+
+export const getProjects = () => async dispatch => {
+  const res = await axios.get("http://localhost:8080/api/project/all");
+  dispatch({
+    type: GET_PROJECTS,
+    payload: res.data
+  });
+};
+
+```
+
+index.js
+
+```js
+import { combineReducers } from "redux";
+import errorReducer from "./errorReducer";
+import projectReducer from "./projectReducer";
+
+export default combineReducers({
+  errors: errorReducer,
+  project: projectReducer
+});
+
+```
+
+Dashboard.js
+
+```js
+import React, { Component } from "react";
+import ProjectItem from "./Project/ProjectItem";
+import CreateProjectButton from "./Project/CreateProjectButton";
+import { connect } from "react-redux";
+import { getProjects } from "../actions/projectActions";
+import PropTypes from "prop-types";
+
+class Dashboard extends Component {
+  componentDidMount() {
+    this.props.getProjects();
+  }
+
+  render() {
+    return (
+      <div className="projects">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <h1 className="display-4 text-center">Projects</h1>
+              <br />
+              <CreateProjectButton />
+
+              <br />
+              <hr />
+              <ProjectItem />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+Dashboard.propTypes = {
+  project: PropTypes.object.isRequired,
+  getProjects: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  project: state.project
+});
+
+export default connect(
+  mapStateToProps,
+  { getProjects }
+)(Dashboard);
+
+```
+
+
+
 ### 15.1 branch22 - made offline changes, check both commit 3e53bc8  and 1 parent 71370a3.html
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/tree/branch22
 
 ### 16. Get Projects - final step - branch23
 
+ProjectItem.js
+
+```js
+
+class ProjectItem extends Component {
+  render() {
+    const { project } = this.props;
+```
+
+Dashboard.js
+
+```js
+
+class Dashboard extends Component {
+  componentDidMount() {
+    this.props.getProjects();
+  }
+
+  render() {
+    const { projects } = this.props.project;
+      
+    <hr />
+              {projects.map(project => (
+                <ProjectItem key={project.id} project={project} />
+              ))}
+```
+
+
+
 ### 16.1 branch23.html
+
+
 
 ### 17. Update Project use case architecture
 
+  ![image-20200511163652702](spring-boot-20-react-redux.assets/image-20200511163652702.png)
+
+Khi click vào update project
+
+  ![image-20200511163624011](spring-boot-20-react-redux.assets/image-20200511163624011.png)
+
+
+
 ### 18. Update Project form and route
+
+
 
 ### 18.1 branch24.html
 
