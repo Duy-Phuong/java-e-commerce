@@ -1899,15 +1899,272 @@ Khi click vào update project
 
 ### 18. Update Project form and route
 
+UpdateProject.js
 
+```js
+import React, { Component } from "react";
+
+export default class UpdateProject extends Component {
+  render() {
+    return (
+      <div className="project">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <h5 className="display-4 text-center">Update Project form</h5>
+              <hr />
+              <form>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg "
+                    placeholder="Project Name"
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    placeholder="Unique Project ID"
+                    disabled
+                  />
+                </div>
+                <div className="form-group">
+                  <textarea
+                    className="form-control form-control-lg"
+                    placeholder="Project Description"
+                  />
+                </div>
+                <h6>Start Date</h6>
+                <div className="form-group">
+                  <input
+                    type="date"
+                    className="form-control form-control-lg"
+                    name="start_date"
+                  />
+                </div>
+                <h6>Estimated End Date</h6>
+                <div className="form-group">
+                  <input
+                    type="date"
+                    className="form-control form-control-lg"
+                    name="end_date"
+                  />
+                </div>
+
+                <input
+                  type="submit"
+                  className="btn btn-primary btn-block mt-4"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+```
+
+App.js
+
+```js
+<Route exact path="/updateProject/:id" component={UpdateProject} />
+
+```
+
+ProjectItem.js
+
+```js
+<Link to={`/updateProject/${project.projectIdentifier}`}>
+    <li className="list-group-item update">
+    <i className="fa fa-edit pr-1"> Update Project Info</i>
+	</li>
+</Link>
+```
+
+copy từ projectForm.html
 
 ### 18.1 branch24.html
 
 ### 19. Get Project by Id, Update use case part 1 - commit id b13741f
 
+projectActions.js
+
+```js
+
+export const getProject = (id, history) => async dispatch => {
+  const res = await axios.get(`http://localhost:8080/api/project/${id}`);
+  dispatch({
+    type: GET_PROJECT,
+    payload: res.data
+  });
+};
+```
+
+projectReducer.js
+
+```js
+case GET_PROJECT:
+      return {
+        ...state,
+        project: action.payload
+      };
+    default:
+      return state;
+  }
+```
+
+UpdateProject.js
+
+```js
+import React, { Component } from "react";
+import { getProject } from "../../actions/projectActions";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import classnames from "classnames";
+
+class UpdateProject extends Component {
+  //set state
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    this.props.getProject(id, this.props.history);
+  }
+  render() {
+    return (
+      <div className="project">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <h5 className="display-4 text-center">Update Project form</h5>
+              <hr />
+              <form>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg "
+                    placeholder="Project Name"
+                    name="projectName"
+                    value={this.state.projectName}
+                  />
+                </div>
+               
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+UpdateProject.propTypes = {
+  getProject: PropTypes.func.isRequired,
+  project: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  project: state.project.project
+});
+
+export default connect(
+  mapStateToProps,
+  { getProject }
+)(UpdateProject);
+
+```
+
+
+
 ### 19.1 commit.html
 
+https://github.com/AgileIntelligence/AgileIntPPMTool/commit/b13741fcff1e23f67355623d7c9ef7db8f855dd8
+
 ### 20. Persist Project Object Updates - branch26
+
+UpdateProject.js
+
+```js
+class UpdateProject extends Component {
+  //set state
+  constructor() {
+    super();
+// add
+    this.state = {
+      id: "",
+      projectName: "",
+      projectIdentifier: "",
+      description: "",
+      start_date: "",
+      end_date: ""
+    };
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+    
+  
+  componentWillReceiveProps(nextProps) {
+    const {
+      id,
+      projectName,
+      projectIdentifier,
+      description,
+      start_date,
+      end_date
+    } = nextProps.project;
+
+    this.setState({
+      id,
+      projectName,
+      projectIdentifier,
+      description,
+      start_date,
+      end_date
+    });
+  }
+    
+  
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+
+    const updateProject = {
+      id: this.state.id,
+      projectName: this.state.projectName,
+      projectIdentifier: this.state.projectIdentifier,
+      description: this.state.description,
+      start_date: this.state.start_date,
+      end_date: this.state.end_date
+    };
+
+    this.props.createProject(updateProject, this.props.history);
+  }
+
+    ...
+    
+     <input
+                    type="text"
+                   className="form-control form-control-lg "
+                    placeholder="Project Name"
+                    name="projectName"
+// add -----------
+                    value={this.state.projectName}
+                    onChange={this.onChange}
+```
+
+Project.java
+
+```java
+@JsonFormat(pattern = "yyyy-mm-dd")
+@Column(updatable = false)
+private Date created_At;
+```
+
+
 
 ### 20.1 branch26.html
 
@@ -1915,19 +2172,180 @@ Khi click vào update project
 
 ### 21. Handle Errors in UpdateProject.js  - branch27
 
+khi nhập link bất kì với id không tồn tại
+
+projectAction.js
+
+```js
+export const getProject = (id, history) => async dispatch => {
+    // add try catch
+  try {
+    const res = await axios.get(`http://localhost:8080/api/project/${id}`);
+    dispatch({
+      type: GET_PROJECT,
+      payload: res.data
+    });
+  } catch (error) {
+    history.push("/dashboard");
+  }
+};
+```
+
+UpdateProject.js
+
+```js
+
+componentWillReceiveProps(nextProps) {
+    // add
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+    
+   render() {
+       // add
+    const { errors } = this.state;
+       
+       <input
+             type="text"
+             className={classnames("form-control form-control-lg", {
+              "is-invalid": errors.projectName
+               })}
+                    placeholder="Project Name"
+                    name="projectName"
+                    value={this.state.projectName}
+                    onChange={this.onChange}
+                  />
+                  {errors.projectName && (
+                    <div className="invalid-feedback">{errors.projectName}</div>
+                  )}
+    
+UpdateProject.propTypes = {
+  getProject: PropTypes.func.isRequired,
+  createProject: PropTypes.func.isRequired,
+  project: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired // add
+};
+
+const mapStateToProps = state => ({
+  project: state.project.project,
+  errors: state.errors // add
+});
+```
+
+
+
 ### 21.1 branch27.html
 
 ### 22. BUG FIX Strange Update Behaviour
+
+Nếu success clear error
+
+projectActions.js
+
+```js
+export const createProject = (project, history) => async dispatch => {
+  try {
+    const res = await axios.post("http://localhost:8080/api/project", project);
+    history.push("/dashboard");
+    
+      // add 
+    dispatch({
+      type: GET_ERRORS,
+      payload: {}
+    });
+```
+
+
 
 ### 22.1 branch28.html
 
 ### 23. Delete Project Architecture
 
+![image-20200511205641861](spring-boot-20-react-redux.assets/image-20200511205641861.png)
+
 ### 24. Delete an existing project - branch29
+
+ProjectReducer.js
+
+```js
+case DELETE_PROJECT:
+      return {
+        ...state,
+        projects: state.projects.filter(
+          project => project.projectIdentifier !== action.payload
+        )
+      };
+```
+
+projectActions.js
+
+```js
+
+export const deleteProject = id => async dispatch => {
+  await axios.delete(`http://localhost:8080/api/project/${id}`);
+  dispatch({
+    type: DELETE_PROJECT,
+    payload: id
+  });
+};
+
+```
+
+ProjectItem
+
+```js
+
+
+class ProjectItem extends Component {
+  onDeleteClick = id => {
+    this.props.deleteProject(id);
+  };
+
+<li className="list-group-item delete"
+                  onClick={this.onDeleteClick.bind(
+                    this,
+                    project.projectIdentifier
+                  )}
+                >
+                  <i className="fa fa-minus-circle pr-1"> Delete Project</i>
+                </li>
+
+ProjectItem.propTypes = {
+  deleteProject: PropTypes.func.isRequired
+};
+
+export default connect(
+  null,
+  { deleteProject }
+)(ProjectItem);
+```
+
+
 
 ### 24.1 branch29.html
 
 ### 25. Refactor Delete Operation and Proxy
+
+package.json
+
+```json
+  "proxy": "http://localhost:8080"
+```
+
+projectActions.js
+
+```js
+
+export const deleteProject = id => async dispatch => {
+    // add
+  if (
+    window.confirm(
+      "Are you sure? This will delete the project and all the data related to it"
+    )
+  )
+```
+
+
 
 ### 25.1 branch30.html
 
