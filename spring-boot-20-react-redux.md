@@ -2585,6 +2585,66 @@ public interface ProjectTaskRepository extends CrudRepository<ProjectTask, Long>
 
 
 ### 2. Entity Relationships Project and Backlog - branch32
+
+Project.java
+
+```java
+@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "project")
+    // thêm getter and setter
+    private Backlog backlog;
+```
+
+BackLog.java
+
+```java
+//OneToOne with project
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="project_id",nullable = false)
+    @JsonIgnore // tranh loop err
+    private Project project;
+```
+
+ProjectService.java
+
+```java
+try{
+            project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+// add
+            if(project.getId()==null){
+                Backlog backlog = new Backlog();
+                project.setBacklog(backlog);
+                backlog.setProject(project);
+                backlog.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+            }
+// khi update backlog = null => fix
+            if(project.getId()!=null){
+                project.setBacklog(backlogRepository.findByProjectIdentifier(project.getProjectIdentifier().toUpperCase()));
+            }
+
+            return projectRepository.save(project);
+
+        }
+```
+
+BacklogRepository
+
+```java
+package io.agileintelligence.ppmtool.repositories;
+
+import io.agileintelligence.ppmtool.domain.Backlog;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface BacklogRepository extends CrudRepository<Backlog, Long> {
+	// add
+    Backlog findByProjectIdentifier(String Identifier);
+}
+
+```
+
+
+
 ### 2.1 branch32.html
 ### 3. Backlog - ProjectTask relationship - branch33
 ### 3.1 branch33.html
