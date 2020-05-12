@@ -3756,13 +3756,217 @@ export default ProjectBoard;
 
 ### 10. Load ProjectTasks to the state - branch50
 
+backlockActions.java
+
+```java
+
+export const getBacklog = backlog_id => async dispatch => {
+  try {
+    const res = await axios.get(`/api/backlog/${backlog_id}`);
+    dispatch({
+      type: GET_BACKLOG,
+      payload: res.data
+    });
+  } catch (err) {}
+};
+```
+
+ProjectBoard
+
+```java
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import Backlog from "./Backlog";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { getBacklog } from "../../actions/backlogActions";
+
+class ProjectBoard extends Component {
+  //constructor to handle errors
+
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    this.props.getBacklog(id);
+  }
+
+  render() {
+    const { id } = this.props.match.params;
+    return (
+      <div className="container">
+        <Link to={`/addProjectTask/${id}`} className="btn btn-primary mb-3">
+          <i className="fas fa-plus-circle"> Create Project Task</i>
+        </Link>
+        <br />
+        <hr />
+        <Backlog />
+      </div>
+    );
+  }
+}
+
+ProjectBoard.propTypes = {
+  backlog: PropTypes.object.isRequired,
+  getBacklog: PropTypes.func.isRequired // add
+};
+
+// add
+const mapStateToProps = state => ({
+  backlog: state.backlog
+});
+
+export default connect(
+  mapStateToProps,
+  { getBacklog }
+)(ProjectBoard);
+
+```
+
+
+
 ### 10.1 branch50.html
 
 ### 11. Load Project Tasks to UI step 1 - branch51
 
+ProjectBoard
+
+```java
+
+class ProjectBoard extends Component {
+  //constructor to handle errors
+
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    this.props.getBacklog(id); // add
+  }
+
+  render() {
+    const { id } = this.props.match.params;
+    const { project_tasks } = this.props.backlog; // add
+    return (
+      <div className="container">
+        <Link to={`/addProjectTask/${id}`} className="btn btn-primary mb-3">
+          <i className="fas fa-plus-circle"> Create Project Task</i>
+        </Link>
+        <br />
+        <hr />
+        <Backlog project_tasks_prop={project_tasks} />
+      </div>
+    );
+  }
+}
+```
+
+Backlog
+
+```java
+
+class Backlog extends Component {
+  render() {
+    const { project_tasks_prop } = this.props;
+
+    const tasks = project_tasks_prop.map(project_task => (
+      <ProjectTask key={project_task.id} project_task={project_task} />
+    ));
+
+```
+
+ProjectTask
+
+```js
+import React, { Component } from "react";
+
+class ProjectTask extends Component {
+  render() {
+      // add
+    const { project_task } = this.props;
+    return (
+      <div className="card mb-1 bg-light">
+        <div className="card-header text-primary">
+          ID: {project_task.projectSequence} -- Priority:{" "}
+          {project_task.priority}
+        </div>
+        <div className="card-body bg-light">
+          <h5 className="card-title">{project_task.summary}</h5>
+          <p className="card-text text-truncate ">
+            {project_task.acceptanceCriteria}
+          </p>
+          <a href="" className="btn btn-primary">
+            View / Update
+          </a>
+
+          <button className="btn btn-danger ml-4">Delete</button>
+        </div>
+      </div>
+    );
+  }
+}
+export default ProjectTask;
+
+```
+
+
+
 ### 11.1 branch51.html
 
 ### 12. Organize Project Tasks by status and priority - branch52
+
+BackLog.js
+
+```js
+
+    let todoItems = [];
+    let inProgressItems = [];
+    let doneItems = [];
+
+    for (let i = 0; i < tasks.length; i++) {
+      console.log(tasks[i]);
+
+      if (tasks[i].props.project_task.status === "TO_DO") {
+        todoItems.push(tasks[i]);
+      }
+
+      if (tasks[i].props.project_task.status === "IN_PROGRESS") {
+        inProgressItems.push(tasks[i]);
+      }
+
+      if (tasks[i].props.project_task.status === "DONE") {
+        doneItems.push(tasks[i]);
+      }
+    }
+```
+
+ProjectTask
+
+```js
+class ProjectTask extends Component {
+  render() {
+    const { project_task } = this.props;
+    let priorityString;
+    let priorityClass;
+
+    if (project_task.priority === 1) {
+      priorityClass = "bg-danger text-light";
+      priorityString = "HIGH";
+    }
+
+    if (project_task.priority === 2) {
+      priorityClass = "bg-warning text-light";
+      priorityString = "MEDIUM";
+    }
+
+    if (project_task.priority === 3) {
+      priorityClass = "bg-info text-light";
+      priorityString = "LOW";
+    }
+
+    return (
+      <div className="card mb-1 bg-light">
+        <div className={`card-header text-primary ${priorityClass}`}>
+          ID: {project_task.projectSequence} -- Priority: {priorityString}
+        </div>
+```
+
+
 
 ### 12.1 branch52.html
 
