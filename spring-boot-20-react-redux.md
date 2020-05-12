@@ -3558,10 +3558,200 @@ AddProjectTask.java
 ### 7.1 branch47.html
 ### 8. Finish AddProjectTask action, handle errors part3 - branch48
 
+AddProjectTask thêm display error
+
+```java
+// add
+componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+
+
+render() {
+    const { id } = this.props.match.params;
+    const { errors } = this.state; // add
+<input
+                    type="text"
+                    className={classnames("form-control form-control-lg", {
+                      "is-invalid": errors.summary
+                    })}
+                    name="summary"
+                    placeholder="Project Task summary"
+                    value={this.state.summary}
+                    onChange={this.onChange}
+                  />
+                  {errors.summary && (
+                    <div className="invalid-feedback">{errors.summary}</div>
+                  )}
+
+
+
+AddProjectTask.propTypes = {
+  addProjectTask: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired // add
+};
+
+// add
+const mapStateToProps = state => ({
+  errors: state.errors
+});
+
+export default connect(
+  mapStateToProps,
+  { addProjectTask }
+)(AddProjectTask);
+```
+
+backlogActions
+
+```js
+import axios from "axios";
+import { GET_ERRORS } from "./types";
+
+export const addProjectTask = (
+  backlog_id,
+  project_task,
+  history
+) => async dispatch => {
+  try {
+    await axios.post(`/api/backlog/${backlog_id}`, project_task);
+    history.push(`/projectBoard/${backlog_id}`);
+    dispatch({
+      type: GET_ERRORS,
+      payload: {}
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_ERRORS,
+      payload: err.response.data
+    });
+  }
+};
+
+```
+
 
 
 ### 8.1 branch48.html
 ### 9. Set up ProjectBoard, Backlog, ProjectTask components - branch49
+
+copy từ ProjectBoard
+
+BackLog.js
+
+```js
+import React, { Component } from "react";
+import ProjectTask from "./ProjectTasks/ProjectTask";
+
+class Backlog extends Component {
+  render() {
+    return (
+      <div className="container">
+        <div className="row">
+          <div className="col-md-4">
+            <div className="card text-center mb-2">
+              <div className="card-header bg-secondary text-white">
+                <h3>TO DO</h3>
+              </div>
+            </div>
+            <ProjectTask />
+          </div>
+          <div className="col-md-4">
+            <div className="card text-center mb-2">
+              <div className="card-header bg-primary text-white">
+                <h3>In Progress</h3>
+              </div>
+            </div>
+            {
+              //  <!-- SAMPLE PROJECT TASK STARTS HERE -->
+              //         <!-- SAMPLE PROJECT TASK ENDS HERE -->
+            }
+          </div>
+          <div className="col-md-4">
+            <div className="card text-center mb-2">
+              <div className="card-header bg-success text-white">
+                <h3>Done</h3>
+              </div>
+            </div>
+            {
+              // <!-- SAMPLE PROJECT TASK STARTS HERE -->
+              // <!-- SAMPLE PROJECT TASK ENDS HERE -->
+            }
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Backlog;
+
+```
+
+ProjectTask.js
+
+```js
+import React, { Component } from "react";
+
+class ProjectTask extends Component {
+  render() {
+    return (
+      <div className="card mb-1 bg-light">
+        <div className="card-header text-primary">
+          ID: projectSequence -- Priority: priorityString
+        </div>
+        <div className="card-body bg-light">
+          <h5 className="card-title">project_task.summary</h5>
+          <p className="card-text text-truncate ">
+            project_task.acceptanceCriteria
+          </p>
+          <a href="" className="btn btn-primary">
+            View / Update
+          </a>
+
+          <button className="btn btn-danger ml-4">Delete</button>
+        </div>
+      </div>
+    );
+  }
+}
+export default ProjectTask;
+
+```
+
+ProjectBoard
+
+```js
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import Backlog from "./Backlog";
+
+class ProjectBoard extends Component {
+  render() {
+    const { id } = this.props.match.params;
+    return (
+      <div className="container">
+        <Link to={`/addProjectTask/${id}`} className="btn btn-primary mb-3">
+          <i className="fas fa-plus-circle"> Create Project Task</i>
+        </Link>
+        <br />
+        <hr />
+        <Backlog />
+      </div>
+    );
+  }
+}
+
+export default ProjectBoard;
+
+```
+
+![image-20200512205826969](spring-boot-20-react-redux.assets/image-20200512205826969.png)  
+
+
+
 ### 9.1 branch49.html
 
 ### 10. Load ProjectTasks to the state - branch50
