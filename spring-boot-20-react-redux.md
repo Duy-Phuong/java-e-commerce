@@ -3166,18 +3166,400 @@ Khi delete project tất cả sẽ bị xóa theo
 ## 5. Add Project Tasks - React  Redux
 ### 1. Intro to Section, Demo of what we are implementing
 ### 1.1 checkout the prototype in this demo.html
+
+https://agileintppmtool.herokuapp.com/
+
 ### 2. BUG FIX Import error in Backlog reducer - branch43.html
+
+***IMPORTANT: PLEASE READ BEFORE MOVING FORWARD***
+
+Hey Team:
+
+In the next video, I am about to make a mistake which I caught later in the course. When wiring up the backlogReducer.js, I imported the types incorrectly which will prevent the app from running properly
+
+> import { GET_BACKLOG, GET_PROJECT_TASK, DELETE_PROJECT_TASK} from "../actions/***projectAction\***s";
+
+
+
+I fixed this in branch45, the right import in the backlogReducer.js file is:
+
+
+
+#### **GET_BACKLOG, GET_PROJECT_TASK, DELETE_PROJECT_TASK}** `**from "../actions/types";**`
+
 ### 3. Types and Reducers for Project Tasks - branch43
+
+backlogReducer.js
+
+```js
+import {
+  GET_BACKLOG,
+  GET_PROJECT_TASK,
+  DELETE_PROJECT_TASK
+} from "../actions/types";
+
+const initialState = {
+  project_tasks: [],
+  project_task: {}
+};
+
+export default function(state = initialState, action) {
+  switch (action.type) {
+    case GET_BACKLOG:
+      return {
+        ...state,
+        project_tasks: action.payload
+      };
+
+    case GET_PROJECT_TASK:
+      return {
+        ...state,
+        project_task: action.payload
+      };
+
+    case DELETE_PROJECT_TASK:
+      return {
+        ...state
+
+        // TO_DO
+      };
+
+    default:
+      return state;
+  }
+}
+
+```
+
+index.js
+
+```js
+
+export default combineReducers({
+  errors: errorReducer,
+  project: projectReducer,
+  backlog: backlogReducer // add
+});
+
+```
+
+
+
 ### 3.1 branch43.html
 ### 4. Section designs and Folder Structure - branch44
+
+![image-20200512163856808](spring-boot-20-react-redux.assets/image-20200512163856808.png)
+
 ### 4.1 branch44.html
 ### 5. Routes to ProjectBoard and AddProjectTask - branch45
+
+ProjectItem.js
+
+```js
+<Link to={`/projectBoard/${project.projectIdentifier}`}>
+                  <li className="list-group-item board">
+                    <i className="fa fa-flag-checkered pr-1"> Project Board </i>
+                  </li>
+                </Link>
+```
+
+App.js
+
+```js
+<Route exact path="/projectBoard/:id" component={ProjectBoard} />
+
+```
+
+copy từ projectBoard.html qua
+
+projectBoard.js
+
+```js
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+
+class ProjectBoard extends Component {
+  render() {
+    const { id } = this.props.match.params;
+    return (
+      <div className="container">
+        <Link to={`/addProjectTask/${id}`} className="btn btn-primary mb-3">
+          <i className="fas fa-plus-circle"> Create Project Task</i>
+        </Link>
+        <br />
+        <hr />
+        {
+          // <!-- Backlog STARTS HERE -->
+        }
+        <div className="container">
+          <div className="row">
+            <div className="col-md-4">
+              <div className="card text-center mb-2">
+                <div className="card-header bg-secondary text-white">
+                  <h3>TO DO</h3>
+                </div>
+              </div>
+              {
+                // <!-- SAMPLE PROJECT TASK STARTS HERE -->
+              }
+              <div className="card mb-1 bg-light">
+                <div className="card-header text-primary">
+                  ID: projectSequence -- Priority: priorityString
+                </div>
+                <div className="card-body bg-light">
+                  <h5 className="card-title">project_task.summary</h5>
+                  <p className="card-text text-truncate ">
+                    project_task.acceptanceCriteria
+                  </p>
+                  <a href="" className="btn btn-primary">
+                    View / Update
+                  </a>
+
+                  <button className="btn btn-danger ml-4">Delete</button>
+                </div>
+              </div>
+
+              {
+                // <!-- SAMPLE PROJECT TASK ENDS HERE -->
+              }
+            </div>
+            <div className="col-md-4">
+              <div className="card text-center mb-2">
+                <div className="card-header bg-primary text-white">
+                  <h3>In Progress</h3>
+                </div>
+              </div>
+              {
+                //  <!-- SAMPLE PROJECT TASK STARTS HERE -->
+                //         <!-- SAMPLE PROJECT TASK ENDS HERE -->
+              }
+            </div>
+            <div className="col-md-4">
+              <div className="card text-center mb-2">
+                <div className="card-header bg-success text-white">
+                  <h3>Done</h3>
+                </div>
+              </div>
+              {
+                // <!-- SAMPLE PROJECT TASK STARTS HERE -->
+                // <!-- SAMPLE PROJECT TASK ENDS HERE -->
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default ProjectBoard;
+
+```
+
+![image-20200512171743022](spring-boot-20-react-redux.assets/image-20200512171743022.png)  
+
+ProjectTaskForm.html to here
+
+AddProjectTask.js
+
+```js
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+
+class AddProjectTask extends Component {
+  render() {
+    const { id } = this.props.match.params;
+
+    return (
+      <div className="add-PBI">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <Link to={`/projectBoard/${id}`} className="btn btn-light">
+                Back to Project Board
+              </Link>
+              <h4 className="display-4 text-center">Add Project Task</h4>
+              <p className="lead text-center">Project Name + Project Code</p>
+              <form>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    name="summary"
+                    placeholder="Project Task summary"
+                  />
+                </div>
+                <div className="form-group">
+                  <textarea
+                    className="form-control form-control-lg"
+                    placeholder="Acceptance Criteria"
+                    name="acceptanceCriteria"
+                  />
+                </div>
+                <h6>Due Date</h6>
+                <div className="form-group">
+                  <input
+                    type="date"
+                    className="form-control form-control-lg"
+                    name="dueDate"
+                  />
+                </div>
+                <div className="form-group">
+                  <select
+                    className="form-control form-control-lg"
+                    name="priority"
+                  >
+                    <option value={0}>Select Priority</option>
+                    <option value={1}>High</option>
+                    <option value={2}>Medium</option>
+                    <option value={3}>Low</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <select
+                    className="form-control form-control-lg"
+                    name="status"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="TO_DO">TO DO</option>
+                    <option value="IN_PROGRESS">IN PROGRESS</option>
+                    <option value="DONE">DONE</option>
+                  </select>
+                </div>
+
+                <input
+                  type="submit"
+                  className="btn btn-primary btn-block mt-4"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default AddProjectTask;
+
+```
+
+Thêm vào app.js
+
+![image-20200512172404711](spring-boot-20-react-redux.assets/image-20200512172404711.png)
+
+
+
 ### 5.1 branch45.html
 ### 6. AddProjectTask action ( )path) AddProjectTask form controlled part 1 -branch46
+
+backlogActions.js
+
+```js
+import axios from "axios";
+
+export const addProjectTask = (
+  backlog_id,
+  project_task,
+  history
+) => async dispatch => {
+  await axios.post(`/api/backlog/${backlog_id}`, project_task);
+  history.push(`/projectBoard/${backlog_id}`);
+};
+
+```
+
+AddProjectTask.js
+
+```js
+
+class AddProjectTask extends Component {
+  constructor(props) {
+    super(props);
+      // add
+    const { id } = this.props.match.params;
+
+    this.state = {
+      summary: "",
+      acceptanceCriteria: "",
+      status: "",
+      priority: 0,
+      dueDate: "",
+      projectIdentifier: id,
+      errors: {}
+    };
+  }
+
+  render() {
+    const { id } = this.props.match.params;
+      
+ // add
+AddProjectTask.propTypes = {
+  addProjectTask: PropTypes.func.isRequired
+};
+
+export default connect(
+  null,
+  { addProjectTask }
+)(AddProjectTask);
+
+```
+
+Backend
+
+ProjectTaskService
+
+```java
+if(projectTask.getPriority()==0||projectTask.getPriority()==null){ 
+    //In the future we need projectTask.getPriority()== 0 to handle the form
+                projectTask.setPriority(3);
+  }
+```
+
+
+
 ### 6.1 branch46.html
 ### 7. AddProjectTask action ( )path) AddProjectTask form controlled part 2 -branch47
+
+AddProjectTask.java
+
+```java
+ 	// add
+	this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  // on change
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+  //on submit
+  onSubmit(e) {
+    e.preventDefault();
+
+    const newTask = {
+      summary: this.state.summary,
+      acceptanceCriteria: this.state.acceptanceCriteria,
+      status: this.state.status,
+      priority: this.state.priority,
+      dueDate: this.state.dueDate
+    };
+    this.props.addProjectTask(
+      this.state.projectIdentifier,
+      newTask,
+      this.props.history
+    );
+  }
+```
+
+
+
 ### 7.1 branch47.html
 ### 8. Finish AddProjectTask action, handle errors part3 - branch48
+
+
+
 ### 8.1 branch48.html
 ### 9. Set up ProjectBoard, Backlog, ProjectTask components - branch49
 ### 9.1 branch49.html
