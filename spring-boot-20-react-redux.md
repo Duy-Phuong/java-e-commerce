@@ -2602,6 +2602,8 @@ BackLog.java
     @JoinColumn(name="project_id",nullable = false)
     @JsonIgnore // tranh loop err
     private Project project;
+
+// getter setter
 ```
 
 ProjectService.java
@@ -2647,57 +2649,523 @@ public interface BacklogRepository extends CrudRepository<Backlog, Long> {
 
 ### 2.1 branch32.html
 ### 3. Backlog - ProjectTask relationship - branch33
+
+Must add getter and setter
+
+BackLog.java
+
+```java
+//OneToMany projecttasks
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "backlog")
+    private List<ProjectTask> projectTasks = new ArrayList<>();
+```
+
+ProjectTask
+
+```java
+//ManyToOne with Backlog
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JoinColumn(name="backlog_id", updatable = false, nullable = false)
+    @JsonIgnore
+    private Backlog backlog;
+```
+
+
+
 ### 3.1 branch33.html
 ### 4. Design discussion around creating a Project Task
+
+explainaton sequence
+
+ProjectTaskService
+
+```java
+package io.agileintelligence.ppmtool.services;
+
+import io.agileintelligence.ppmtool.domain.Backlog;
+import io.agileintelligence.ppmtool.domain.ProjectTask;
+import io.agileintelligence.ppmtool.repositories.BacklogRepository;
+import io.agileintelligence.ppmtool.repositories.ProjectTaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProjectTaskService {
+
+
+    @Autowired
+    private BacklogRepository backlogRepository;
+
+    @Autowired
+    private ProjectTaskRepository projectTaskRepository;
+
+
+    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask){
+
+        //Exceptions: Project not found
+
+        //PTs to be added to a specific project, project != null, BL exists
+        Backlog backlog = backlogRepository.findByProjectIdentifier(projectIdentifier);
+        //set the bl to pt
+        projectTask.setBacklog(backlog);
+        //we want our project sequence to be like this: IDPRO-1  IDPRO-2  ...100 101
+        Integer BacklogSequence = backlog.getPTSequence();
+        // Update the BL SEQUENCE
+        BacklogSequence++;
+
+        //Add Sequence to Project Task
+        projectTask.setProjectSequence(projectIdentifier+"-"+BacklogSequence);
+        projectTask.setProjectIdentifer(projectIdentifier);
+
+        //INITIAL priority when priority null
+//        if(projectTask.getPriority()==0||projectTask.getPriority()==null){
+//            projectTask.setPriority(3);
+//        }
+        //INITIAL status when status is null
+        if(projectTask.getStatus()==""|| projectTask.getStatus()==null){
+            projectTask.setStatus("TO_DO");
+        }
+
+        return projectTaskRepository.save(projectTask);
+    }
+}
+
+```
+
+BackLogController.java
+
+```java
+package io.agileintelligence.ppmtool.web;
+
+import io.agileintelligence.ppmtool.domain.ProjectTask;
+import io.agileintelligence.ppmtool.services.MapValidationErrorService;
+import io.agileintelligence.ppmtool.services.ProjectTaskService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/api/backlog")
+@CrossOrigin
+public class BacklogController {
+
+    @Autowired
+    private ProjectTaskService projectTaskService;
+
+    @Autowired
+    private MapValidationErrorService mapValidationErrorService;
+
+
+    @PostMapping("/{backlog_id}")
+    public ResponseEntity<?> addPTtoBacklog(@Valid @RequestBody ProjectTask projectTask,
+                                            BindingResult result, @PathVariable String backlog_id){
+
+        ResponseEntity<?> erroMap = mapValidationErrorService.MapValidationService(result);
+        if (erroMap != null) return erroMap;
+
+        ProjectTask projectTask1 = projectTaskService.addProjectTask(backlog_id, projectTask);
+
+        return new ResponseEntity<ProjectTask>(projectTask1, HttpStatus.CREATED);
+
+    }
+
+
+}
+
+```
+
+data postman
+
+```json
+{
+    "summary": "TEST1"
+}
+```
+
+
+
+
+
 ### 5. Persist Project Task (Bug fix pending setPriority) - branch34
+
+ProjectTaskService.java
+
+```java
+
+// add
+backlog.setPTSequence(BacklogSequence);
+
+        //Add Sequence to Project Task
+        projectTask.setProjectSequence(backlog.getProjectIdentifier()+"-"+BacklogSequence);
+        projectTask.setProjectIdentifier(projectIdentifier);
+//INITIAL priority when priority null
+
+        //INITIAL status when status is null
+        if(projectTask.getStatus()==""|| projectTask.getStatus()==null){
+            projectTask.setStatus("TO_DO");
+        }
+
+        if(projectTask.getPriority()==null){ //In the future we need projectTask.getPriority()== 0 to handle the form
+            projectTask.setPriority(3);
+        }
+```
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/commit/45848308e4faa8f69266ce298f7ea4c12d97990e
+
+
+
 ### 5.1 branch34.html
 ### 6. BUG FIX ProjectTask priority, projectIdentifier, PTSequence - branch35
+
+
+
 ### 6.1 branch35.html
 ### 7. Get Project Backlog (happy path) - branch36
+
+When get project by id => in post man the number of data retrieve is very large
+
+Project.java
+
+```java
+// add
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "project")
+    @JsonIgnore // add
+    private Backlog backlog;
+```
+
+BackLogController
+
+```java
+@GetMapping("/{backlog_id}")
+    public Iterable<ProjectTask> getProjectBacklog(@PathVariable String backlog_id){
+
+      return projectTaskService.findBacklogById(backlog_id);
+
+    }
+```
+
+ProjectTaskService.java
+
+```java
+public Iterable<ProjectTask>findBacklogById(String id){
+        return projectTaskRepository.findByProjectIdentifierOrderByPriority(id);
+    }
+```
+
+
+
 ### 7.1 branch36.html
 ### 8. SET UP THE PROJECT TO USE MYSQL, NO MORE H2!
+
+application.properties
+
+```properties
+spring.jpa.show-sql=true
+
+spring.datasource.url = jdbc:mysql://localhost:3306/ppmtcourse
+spring.datasource.username=agileintelligence
+spring.datasource.password=password
+
+#Using the right database platform is extremly important on Spring Boot 2.0
+spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect
+
+
+#CONFLICTS WITH HEROKU from local host
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL57Dialect
+spring.jpa.hibernate.ddl-auto=update
+```
+
+
+
 ### 9. Handle Project Not Found Exception  Project Tasks-branch37
+
+![image-20200512102736085](spring-boot-20-react-redux.assets/image-20200512102736085.png)  
+
+khi add project nếu gửi ID không tồn tại
+
+ProjectNotFoundExceptionResponse
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+public class ProjectNotFoundExceptionResponse {
+
+    private String ProjectNotFound;
+
+    public ProjectNotFoundExceptionResponse(String projectNotFound) {
+        ProjectNotFound = projectNotFound;
+    }
+
+    public String getProjectNotFound() {
+        return ProjectNotFound;
+    }
+
+    public void setProjectNotFound(String projectNotFound) {
+        ProjectNotFound = projectNotFound;
+    }
+}
+
+```
+
+ProjectNotFoundException
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class ProjectNotFoundException extends RuntimeException {
+    public ProjectNotFoundException(String message) {
+        super(message);
+    }
+}
+
+```
+
+CustomResponseEntityExceptionHandler
+
+```java
+@ExceptionHandler
+    public final ResponseEntity<Object> handleProjectNotFoundException(ProjectNotFoundException ex, WebRequest request){
+        ProjectNotFoundExceptionResponse exceptionResponse = new ProjectNotFoundExceptionResponse(ex.getMessage());
+        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+```
+
+ProjectTaskService.java
+
+```java
+// thêm
+    try{
+ // code in here
+}catch (Exception e){
+            throw new ProjectNotFoundException("Project not Found");
+        }
+
+
+public Iterable<ProjectTask>findBacklogById(String id){
+
+        Project project = projectRepository.findByProjectIdentifier(id);
+
+    // add
+        if(project==null){
+            throw new ProjectNotFoundException("Project with ID: '"+id+"' does not exist");
+        }
+
+        return projectTaskRepository.findByProjectIdentifierOrderByPriority(id);
+    }
+```
+
+
+
 ### 9.1 branch37.html
 
 ### 10. Find ProjectTask by projectSequence (happy path)-branch38
+
+ProjectTask.java
+
+```java
+@Column(updatable = false, unique = true)
+    private String projectSequence;
+```
+
+ProjectTaskRepository
+
+```java
+    ProjectTask findByProjectSequence(String sequence);
+```
+
+ProjectTaskService
+
+```java
+public ProjectTask findPTByProjectSequence(String backlog_id, String pt_id){
+
+     //make sure we are searching on the right backlog
+
+  return projectTaskRepository.findByProjectSequence(pt_id);
+ }
+```
+
+ProjectController
+
+```java
+	@GetMapping("/{backlog_id}/{pt_id}")
+    public ResponseEntity<?> getProjectTask(@PathVariable String backlog_id, @PathVariable String pt_id){
+        ProjectTask projectTask = projectTaskService.findPTByProjectSequence(backlog_id, pt_id);
+        return new ResponseEntity<ProjectTask>( projectTask, HttpStatus.OK);
+    }
+```
+
+explain
 
 ### 10.1 branch38.html
 
 ### 11. Find ProjectTask by projectSequence wValidation - branch39
 
+ProjectTaskService.java
+
+```java
+
+    public ProjectTask findPTByProjectSequence(String backlog_id, String pt_id){
+
+        //make sure we are searching on an existing backlog
+        Backlog backlog = backlogRepository.findByProjectIdentifier(backlog_id);
+        if(backlog==null){
+            throw new ProjectNotFoundException("Project with ID: '"+backlog_id+"' does not exist");
+        }
+
+        //make sure that our task exists
+        ProjectTask projectTask = projectTaskRepository.findByProjectSequence(pt_id);
+
+        if(projectTask == null){
+            throw new ProjectNotFoundException("Project Task '"+pt_id+"' not found");
+        }
+
+        //make sure that the backlog/project id in the path corresponds to the right project
+        if(!projectTask.getProjectIdentifier().equals(backlog_id)){
+            throw new ProjectNotFoundException("Project Task '"+pt_id+"' does not exist in project: '"+backlog_id);
+        }
+
+
+        return projectTask;
+    }
+```
+
+
+
 ### 11.1 branch39.html
 
 ### 12. Update project task (happy path)-branch40
+
+ProjectTaskService.java
+
+```java
+public ProjectTask updateByProjectSequence(ProjectTask updatedTask, String backlog_id, String pt_id){
+        ProjectTask projectTask = projectTaskRepository.findByProjectSequence(pt_id);
+
+        projectTask = updatedTask;
+
+        return projectTaskRepository.save(projectTask);
+    }
+```
+
+Controller
+
+```java
+@PatchMapping("/{backlog_id}/{pt_id}")
+    public ResponseEntity<?> updateProjectTask(@Valid @RequestBody ProjectTask projectTask, BindingResult result,
+                                               @PathVariable String backlog_id, @PathVariable String pt_id ){
+
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if (errorMap != null) return errorMap;
+
+        ProjectTask updatedTask = projectTaskService.updateByProjectSequence(projectTask,backlog_id,pt_id);
+
+        return new ResponseEntity<ProjectTask>(updatedTask,HttpStatus.OK);
+
+    }
+```
+
+
 
 ### 12.1 branch40.html
 
 ### 13. Finish up with update validation and delete - branch41
 
+service
+
+```java
+
+    public void deletePTByProjectSequence(String backlog_id, String pt_id){
+        ProjectTask projectTask = findPTByProjectSequence(backlog_id, pt_id);
+
+        Backlog backlog = projectTask.getBacklog();
+        List<ProjectTask> pts = backlog.getProjectTasks();
+        pts.remove(projectTask);
+        backlogRepository.save(backlog);
+
+        projectTaskRepository.delete(projectTask);
+    }
+```
+
+
+
+controller
+
+```java
+
+    @DeleteMapping("/{backlog_id}/{pt_id}")
+    public ResponseEntity<?> deleteProjectTask(@PathVariable String backlog_id, @PathVariable String pt_id){
+        projectTaskService.deletePTByProjectSequence(backlog_id, pt_id);
+
+        return new ResponseEntity<String>("Project Task "+pt_id+" was deleted successfully", HttpStatus.OK);
+    }
+```
+
+ProjectTask.java thêm REFRESH
+
+```java
+//ManyToOne with Backlog
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JoinColumn(name="backlog_id", updatable = false, nullable = false)
+    @JsonIgnore
+    private Backlog backlog;
+```
+
+
+
 ### 13.1 branch41.html
 
 ### 14. BUG FIX delete operation, improved backlogproject task rel - branch42
+
+Test postman: create project, create project task by backlog id
+
+Khi xóa deletePTByProjectSequence thì refresh mysql không xóa được
+
+ProjectTaskService
+
+```java
+public void deletePTByProjectSequence(String backlog_id, String pt_id){
+        ProjectTask projectTask = findPTByProjectSequence(backlog_id, pt_id);
+    // remove some code
+        projectTaskRepository.delete(projectTask);
+    }
+```
+
+ProjectTask.java
+
+```java
+//ManyToOne with Backlog
+    @ManyToOne(fetch = FetchType.EAGER) //REMOVE REFRESH
+    @JoinColumn(name="backlog_id", updatable = false, nullable = false)
+    @JsonIgnore
+    private Backlog backlog;
+```
+
+Backlog.java
+
+```java
+//OneToMany projecttasks
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "backlog", orphanRemoval = true)
+    private List<ProjectTask> projectTasks = new ArrayList<>();
+    //Cascade REFRESH
+    //ORPHAN REMOVAL
+```
+
+Khi delete project tất cả sẽ bị xóa theo
 
 ### 14.1 branch42.html
 
 ## 5. Add Project Tasks - React  Redux
 ### 1. Intro to Section, Demo of what we are implementing
 ### 1.1 checkout the prototype in this demo.html
-### 10. Load ProjectTasks to the state - branch50
-### 10.1 branch50.html
-### 11. Load Project Tasks to UI step 1 - branch51
-### 11.1 branch51.html
-### 12. Organize Project Tasks by status and priority - branch52
-### 12.1 branch52.html
-### 13. ProjectBoard Algorithm - branch53
-### 13.1 branch53.html
-### 14. update Project task part 1 - branch54
-### 14.1 branch54.html
-### 15. Update Project task part 2 - branch55
-### 15.1 branch55.html
-### 16. Update Project task part 3- branch56
-### 16.1 branch56.html
-### 17. Delete Project Task - branch57
-### 17.1 branch57.html
 ### 2. BUG FIX Import error in Backlog reducer - branch43.html
 ### 3. Types and Reducers for Project Tasks - branch43
 ### 3.1 branch43.html
@@ -2713,22 +3181,41 @@ public interface BacklogRepository extends CrudRepository<Backlog, Long> {
 ### 8.1 branch48.html
 ### 9. Set up ProjectBoard, Backlog, ProjectTask components - branch49
 ### 9.1 branch49.html
+
+### 10. Load ProjectTasks to the state - branch50
+
+### 10.1 branch50.html
+
+### 11. Load Project Tasks to UI step 1 - branch51
+
+### 11.1 branch51.html
+
+### 12. Organize Project Tasks by status and priority - branch52
+
+### 12.1 branch52.html
+
+### 13. ProjectBoard Algorithm - branch53
+
+### 13.1 branch53.html
+
+### 14. update Project task part 1 - branch54
+
+### 14.1 branch54.html
+
+### 15. Update Project task part 2 - branch55
+
+### 15.1 branch55.html
+
+### 16. Update Project task part 3- branch56
+
+### 16.1 branch56.html
+
+### 17. Delete Project Task - branch57
+
+### 17.1 branch57.html
+
 ## 6. Secure our App Spring Security + JWT
 ### 1. Intro to Spring Security Section
-### 10. Token Generated!!! - branch65
-### 10.1 branch65.html
-### 11. Custom JWT filter to use our tokens - branch66
-### 11.1 branch66.html
-### 12. One User to Many Projects - branch67
-### 12.1 branch67.html
-### 13. Lock operations to specific User (Read and Delete) - branch68
-### 13.1 branch68.html
-### 14. Lock operations to specific User (Update) - branch69
-### 14.1 branch69.html
-### 15. User specific Create and Read Ops for Project Tasks - branch70
-### 15.1 branch70.html
-### 16. Find, Update, Delete  Project task with Security - branch71
-### 16.1 branch71.html
 ### 2. IMPORTANT New to Spring Security.html
 ### 3. IMPORTANT New to JWTs.html
 ### 4. Initial Security Config - branch59
@@ -2742,13 +3229,38 @@ public interface BacklogRepository extends CrudRepository<Backlog, Long> {
 ### 8.1 branch63.html
 ### 9. JWT Provider pre-work - branch64
 ### 9.1 branch64.html
+
+### 10. Token Generated!!! - branch65
+
+### 10.1 branch65.html
+
+### 11. Custom JWT filter to use our tokens - branch66
+
+### 11.1 branch66.html
+
+### 12. One User to Many Projects - branch67
+
+### 12.1 branch67.html
+
+### 13. Lock operations to specific User (Read and Delete) - branch68
+
+### 13.1 branch68.html
+
+### 14. Lock operations to specific User (Update) - branch69
+
+### 14.1 branch69.html
+
+### 15. User specific Create and Read Ops for Project Tasks - branch70
+
+### 15.1 branch70.html
+
+### 16. Find, Update, Delete  Project task with Security - branch71
+
+### 16.1 branch71.html
+
 ## 7. Secure our React App
 ### 1. Intro to Securing the React App, Security Components -branch72
 ### 1.1 branch72.html
-### 10. SecuredRoutes - branch81
-### 10.1 branch81.html
-### 11. Bug Fixes
-### 11.1 bug fixes commit - 8c3fefb.html
 ### 2. User registration happy path - branch73
 ### 2.1 branch73.html
 ### 3. User registration with validation- branch74
@@ -2764,6 +3276,15 @@ public interface BacklogRepository extends CrudRepository<Backlog, Long> {
 ### 8. Dynamic header based on security state - branch79
 ### 8.1 branch79.html
 ### 9. Lock public routes when logged in - branch80
+
+### 10. SecuredRoutes - branch81
+
+### 10.1 branch81.html
+
+### 11. Bug Fixes
+
+### 11.1 bug fixes commit - 8c3fefb.html
+
 ## 8. Deploy to Heroku
 ### 1. MUST READ REQUIREMENTS FOR THIS SECTION.html
 ### 2. Step 1 - Connect Spring boot api to Clear DB
