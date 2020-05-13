@@ -3972,33 +3972,1296 @@ class ProjectTask extends Component {
 
 ### 13. ProjectBoard Algorithm - branch53
 
+backlogActions.js
+
+```js
+export const getBacklog = backlog_id => async dispatch => {
+  try {
+    const res = await axios.get(`/api/backlog/${backlog_id}`);
+    dispatch({
+      type: GET_BACKLOG,
+      payload: res.data
+    });
+  } catch (err) {
+      // add
+    dispatch({
+      type: GET_ERRORS,
+      payload: err.response.data
+    });
+  }
+};
+
+```
+
+ProjectBoard.js
+
+```js
+
+class ProjectBoard extends Component {
+    // add
+  //constructor to handle errors
+  constructor() {
+    super();
+    this.state = {
+      errors: {}
+    };
+  }
+    
+  
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+    
+    const { errors } = this.state;
+
+    let BoardContent;
+
+    const boardAlgorithm = (errors, project_tasks) => {
+      if (project_tasks.length < 1) {
+        if (errors.projectNotFound) {
+          return (
+            <div className="alert alert-danger text-center" role="alert">
+              {errors.projectNotFound}
+            </div>
+          );
+        } else {
+          return (
+            <div className="alert alert-info text-center" role="alert">
+              No Project Tasks on this board
+            </div>
+          );
+        }
+      } else {
+        return <Backlog project_tasks_prop={project_tasks} />;
+      }
+    };
+
+    BoardContent = boardAlgorithm(errors, project_tasks);
+
+
+
+ProjectBoard.propTypes = {
+  backlog: PropTypes.object.isRequired,
+  getBacklog: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired // add
+};
+
+const mapStateToProps = state => ({
+  backlog: state.backlog,
+  errors: state.errors // add
+});
+
+export default connect(
+  mapStateToProps,
+  { getBacklog }
+)(ProjectBoard);
+```
+
+
+
 ### 13.1 branch53.html
 
+https://github.com/AgileIntelligence/AgileIntPPMTool/commit/de35d024e028b7e147e5d50a46fb563b8ccc1b97
+
 ### 14. update Project task part 1 - branch54
+
+UpdateProjectTask.js
+
+```js
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import classnames from "classnames";
+import { getProjectTask } from "../../../actions/backlogActions";
+import PropTypes from "prop-types";
+
+class UpdateProjectTask extends Component {
+  componentDidMount() {
+    const { backlog_id, pt_id } = this.props.match.params;
+    this.props.getProjectTask(backlog_id, pt_id, this.props.history);
+  }
+
+  render() {
+    return (
+      <div className="add-PBI">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <a href="#" className="btn btn-light">
+                Back to Project Board
+              </a>
+              <h4 className="display-4 text-center">Update Project Task</h4>
+              <p className="lead text-center">Project Name + Project Code</p>
+              <form>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    name="summary"
+                    placeholder="Project Task summary"
+                  />
+                </div>
+                <div className="form-group">
+                  <textarea
+                    className="form-control form-control-lg"
+                    placeholder="Acceptance Criteria"
+                    name="acceptanceCriteria"
+                  />
+                </div>
+                <h6>Due Date</h6>
+                <div className="form-group">
+                  <input
+                    type="date"
+                    className="form-control form-control-lg"
+                    name="dueDate"
+                  />
+                </div>
+                <div className="form-group">
+                  <select
+                    className="form-control form-control-lg"
+                    name="priority"
+                  >
+                    <option value={0}>Select Priority</option>
+                    <option value={1}>High</option>
+                    <option value={2}>Medium</option>
+                    <option value={3}>Low</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <select
+                    className="form-control form-control-lg"
+                    name="status"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="TO_DO">TO DO</option>
+                    <option value="IN_PROGRESS">IN PROGRESS</option>
+                    <option value="DONE">DONE</option>
+                  </select>
+                </div>
+
+                <input
+                  type="submit"
+                  className="btn btn-primary btn-block mt-4"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+UpdateProjectTask.propTypes = {
+  getProjectTask: PropTypes.func.isRequired,
+  project_task: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  project_task: state.backlog.project_task
+});
+
+export default connect(
+  mapStateToProps,
+  { getProjectTask }
+)(UpdateProjectTask);
+
+```
+
+copy from ProjectTaskForm.html
+
+App.js
+
+```js
+ <Route
+              exact
+              path="/updateProjectTask/:backlog_id/:pt_id"
+              component={UpdateProjectTask}
+            />
+```
+
+ProjectTask.js
+
+```js
+ <Link
+to={`/updateProjectTask/${project_task.projectIdentifier}/${
+              project_task.projectSequence
+            }`}
+            className="btn btn-primary"
+          >
+```
+
+backlogActions.js
+
+```js
+
+export const getProjectTask = (
+  backlog_id,
+  pt_id,
+  history
+) => async dispatch => {
+  try {
+    const res = await axios.get(`/api/backlog/${backlog_id}/${pt_id}`);
+    dispatch({
+      type: GET_PROJECT_TASK,
+      payload: res.data
+    });
+  } catch (err) {
+    history.push("/dashboard");
+  }
+};
+
+```
+
+projectReducer.js
+
+```js
+case GET_PROJECT_TASK:
+      return {
+        ...state,
+        project_task: action.payload
+      };
+```
+
+![image-20200513165541907](spring-boot-20-react-redux.assets/image-20200513165541907.png)
 
 ### 14.1 branch54.html
 
 ### 15. Update Project task part 2 - branch55
 
+UpdateProjectTask
+
+```js
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import classnames from "classnames";
+import { getProjectTask } from "../../../actions/backlogActions";
+import PropTypes from "prop-types";
+
+class UpdateProjectTask extends Component {
+    // add
+  constructor() {
+    super();
+
+    this.state = {
+      id: "",
+      projectSequence: "",
+      summary: "",
+      acceptanceCriteria: "",
+      status: "",
+      priority: "",
+      dueDate: "",
+      projectIdentifier: "",
+      create_At: ""
+    };
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    const { backlog_id, pt_id } = this.props.match.params;
+    this.props.getProjectTask(backlog_id, pt_id, this.props.history);
+  }
+
+    // add
+  componentWillReceiveProps(nextProps) {
+    const {
+      id,
+      projectSequence,
+      summary,
+      acceptanceCriteria,
+      status,
+      priority,
+      dueDate,
+      projectIdentifier,
+      create_At
+    } = nextProps.project_task;
+
+    this.setState({
+      id,
+      projectSequence,
+      summary,
+      acceptanceCriteria,
+      status,
+      priority,
+      dueDate,
+      projectIdentifier,
+      create_At
+    });
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+
+    const UpdateProjectTask = {
+      id: this.state.id,
+      projectSequence: this.state.projectSequence,
+      summary: this.state.summary,
+      acceptanceCriteria: this.state.acceptanceCriteria,
+      status: this.state.status,
+      priority: this.state.priority,
+      dueDate: this.state.dueDate,
+      projectIdentifier: this.state.projectIdentifier,
+      create_At: this.state.create_At
+    };
+
+    console.log(UpdateProjectTask);
+  }
+
+  render() {
+    return (
+      <div className="add-PBI">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <a href="#" className="btn btn-light">
+                Back to Project Board
+              </a>
+              <h4 className="display-4 text-center">Update Project Task</h4>
+              <p className="lead text-center">
+                Project Name: {this.state.projectIdentifier} | Project Task ID:{" "}
+                {this.state.projectSequence}{" "}
+              </p>
+              <form onSubmit={this.onSubmit}>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    name="summary"
+                    placeholder="Project Task summary"
+                    value={this.state.summary}
+                    onChange={this.onChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <textarea
+                    className="form-control form-control-lg"
+                    placeholder="Acceptance Criteria"
+                    name="acceptanceCriteria"
+                    value={this.state.acceptanceCriteria}
+                    onChange={this.onChange}
+                  />
+                </div>
+                <h6>Due Date</h6>
+                <div className="form-group">
+                  <input
+                    type="date"
+                    className="form-control form-control-lg"
+                    name="dueDate"
+                    value={this.state.dueDate}
+                    onChange={this.onChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <select
+                    className="form-control form-control-lg"
+                    name="priority"
+                    value={this.state.priority}
+                    onChange={this.onChange}
+                  >
+                    <option value={0}>Select Priority</option>
+                    <option value={1}>High</option>
+                    <option value={2}>Medium</option>
+                    <option value={3}>Low</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <select
+                    className="form-control form-control-lg"
+                    name="status"
+                    value={this.state.status}
+                    onChange={this.onChange}
+                  >
+                    <option value="">Select Status</option>
+                    <option value="TO_DO">TO DO</option>
+                    <option value="IN_PROGRESS">IN PROGRESS</option>
+                    <option value="DONE">DONE</option>
+                  </select>
+                </div>
+
+                <input
+                  type="submit"
+                  className="btn btn-primary btn-block mt-4"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+UpdateProjectTask.propTypes = {
+  getProjectTask: PropTypes.func.isRequired,
+  project_task: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  project_task: state.backlog.project_task // add
+});
+
+export default connect(
+  mapStateToProps,
+  { getProjectTask }
+)(UpdateProjectTask);
+
+```
+
+When you submit the form
+
+![image-20200513171201408](spring-boot-20-react-redux.assets/image-20200513171201408.png)
+
 ### 15.1 branch55.html
 
 ### 16. Update Project task part 3- branch56
+
+Have some errors in my console
+
+backlogActions.js 
+
+```js
+
+export const updateProjectTask = (
+  backlog_id,
+  pt_id,
+  project_task,
+  history
+) => async dispatch => {
+  try {
+    await axios.patch(`/api/backlog/${backlog_id}/${pt_id}`, project_task);
+    history.push(`/projectBoard/${backlog_id}`);
+    dispatch({
+      type: GET_ERRORS,
+      payload: {}
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_ERRORS,
+      payload: err.response.data
+    });
+  }
+};
+
+```
+
+UpdateProjectTask
+
+```js
+onSubmit(e) {
+    e.preventDefault();
+
+    const UpdateProjectTask = {
+      id: this.state.id,
+      projectSequence: this.state.projectSequence,
+      summary: this.state.summary,
+      acceptanceCriteria: this.state.acceptanceCriteria,
+      status: this.state.status,
+      priority: this.state.priority,
+      dueDate: this.state.dueDate,
+      projectIdentifier: this.state.projectIdentifier,
+      create_At: this.state.create_At
+    };
+
+    // add
+    // console.log(UpdateProjectTask);
+    this.props.updateProjectTask(
+      this.state.projectIdentifier,
+      this.state.projectSequence,
+      UpdateProjectTask,
+      this.props.history
+    );
+  }
+
+// add handle errors
+componentWillReceiveProps(nextProps) {
+    // add
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+    
+    /// ......
+render() {
+    const { errors } = this.state;
+    
+    
+<input
+                    type="text"
+                    className={classnames("form-control form-control-lg", {
+                      "is-invalid": errors.summary
+                    })}
+                    name="summary"
+                    placeholder="Project Task summary"
+                    value={this.state.summary}
+                    onChange={this.onChange}
+                  />
+                  {errors.summary && (
+                    <div className="invalid-feedback">{errors.summary}</div>
+                  )}
+```
+
+
 
 ### 16.1 branch56.html
 
 ### 17. Delete Project Task - branch57
 
+backlogActions
+
+```js
+export const deleteProjectTask = (backlog_id, pt_id) => async dispatch => {
+  if (
+    window.confirm(
+      `You are deleting project task ${pt_id}, this action cannot be undone`
+    )
+  ) {
+    await axios.delete(`/api/backlog/${backlog_id}/${pt_id}`);
+    dispatch({
+      type: DELETE_PROJECT_TASK,
+      payload: pt_id
+    });
+  }
+};
+```
+
+backlogReducer
+
+```js
+
+    case DELETE_PROJECT_TASK:
+      return {
+        ...state,
+        project_tasks: state.project_tasks.filter(
+          project_task => project_task.projectSequence !== action.payload
+        )
+      };
+```
+
+ProjectTask
+
+```js
+class ProjectTask extends Component {
+  onDeleteClick(backlog_id, pt_id) {
+    this.props.deleteProjectTask(backlog_id, pt_id);
+  }
+    
+    <button
+            className="btn btn-danger ml-4"
+            onClick={this.onDeleteClick.bind(
+              this,
+              project_task.projectIdentifier,
+              project_task.projectSequence
+            )}
+          >
+            Delete
+          </button>
+
+
+ProjectTask.propTypes = {
+  deleteProjectTask: PropTypes.func.isRequired
+};
+export default connect(
+  null,
+  { deleteProjectTask }
+)(ProjectTask);
+```
+
+
+
 ### 17.1 branch57.html
 
 ## 6. Secure our App Spring Security + JWT
 ### 1. Intro to Spring Security Section
+
+Create class UserController, User
+
+pom.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.agileintelligence</groupId>
+    <artifactId>ppmtool</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>ppmtool</name>
+    <description>Personal Project Management Tool</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.5.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Add start -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <!-- Add end -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
+
+```
+
+Sau đó gọi bất kì API nào thì bị status 401
+
+
+
+
+
 ### 2. IMPORTANT New to Spring Security.html
+
+#### IMPORTANT: New to Spring Security?
+
+Hi:
+
+If you have had experience with the basics of the Spring Framework but this is the 1st time you are using Spring Security then I recommend you spend some time understanding the architecture:
+
+https://spring.io/guides/topicals/spring-security-architecture/
+
+Although we will explore each component in depth as we Secure our Spring Boot backend, having read this beforehand will help you have more context of what it is that we are doing.
+
+There is also a little practical project that will take about 15 minutes and that will give you a nice and easy introduction to the Spring Security world:
+
+https://spring.io/guides/gs/securing-web/
+
+Please note that the purpose of this is to get you comfortable with the technology by giving you a little background. Spring Security is not something that can be learned in one shot! It requires practice and the patience to really dig into how it works.
+
+
+
+Thanks!
+
+---
+
+authentication (who are you?) and authorization (what are you allowed to do?)
+
+Spring Security has an architecture that is designed to separate authentication from authorization, and has strategies and extension points for both.
+
+### Authentication
+
+The main strategy interface for authentication is `AuthenticationManager` which only has one method:
+
+```java
+public interface AuthenticationManager {
+
+  Authentication authenticate(Authentication authentication)
+    throws AuthenticationException;
+
+}
+```
+
+An `AuthenticationManager` can do one of 3 things in its `authenticate()` method:
+
+1. return an `Authentication` (normally with `authenticated=true`) if it can verify that the input represents a valid principal.
+2. throw an `AuthenticationException` if it believes that the input represents an invalid principal.
+3. return `null` if it can’t decide.
+
+`AuthenticationException` is a runtime exception.
+
+
+
 ### 3. IMPORTANT New to JWTs.html
+
+#### IMPORTANT: New to JWTs?
+
+Hi:
+
+So you have at least basic experience with Spring Security but you have never worked with JWTs before?
+
+Not a problem! I will walk you through the basic implementation in the videos to come. However, I still recommend that you do some pre-reading so you have some context. Here's a really nice tutorial that I have implemented myself and that really helps you understand JWTs in the context of a Spring Boot app.
+
+
+
+**Note:** Please make sure you **STOP** reading when you see the following header: **"Aside: Securing Spring APIs with Auth0"** as we are **not using Auth0 for this project.**
+
+https://auth0.com/blog/implementing-jwt-authentication-on-spring-boot/
+
+Once again, this does not replace the lectures to come! it only helps those with no previous experience to get started with a much simpler use case than the one we are going to implement.
+
 ### 4. Initial Security Config - branch59
+
+Customize message response
+
+SecurityConfig.java
+
+```java
+package io.agileintelligence.ppmtool.security;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true,
+        prePostEnabled = true
+)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private JwtAuthenticationEntryPoint unauthorizedHandler;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .headers().frameOptions().sameOrigin() //To enable H2 Database
+                .and()
+                .authorizeRequests()
+                .antMatchers(
+                        "/",
+                        "/favicon.ico",
+                        "/**/*.png",
+                        "/**/*.gif",
+                        "/**/*.svg",
+                        "/**/*.jpg",
+                        "/**/*.html",
+                        "/**/*.css",
+                        "/**/*.js"
+                ).permitAll()
+                .anyRequest().authenticated();
+    }
+}
+
+```
+
+**EnableGlobalMethodSecurity**: This is to make sure that whenever you guys in the future want to add very specific security to let's say a method level security say like you know you can only do this if you are an admin and all that stuff. 
+
+> Điều này là để đảm bảo rằng bất cứ khi nào các bạn trong tương lai muốn thêm bảo mật cụ thể để giả sử một bảo mật cấp phương thức nói như bạn biết bạn chỉ có thể làm điều này nếu bạn là quản trị viên và tất cả những thứ đó.
+
+extends WebSecurityConfigurerAdapter: implement is the Web security configure.
+
+JwtAuthenticationEntryPoint.java
+
+```java
+package io.agileintelligence.ppmtool.security;
+
+import com.google.gson.Gson;
+import io.agileintelligence.ppmtool.exceptions.InvalidLoginResponse;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@Component
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    @Override
+    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                         AuthenticationException e) throws IOException, ServletException {
+
+        InvalidLoginResponse loginResponse = new InvalidLoginResponse();
+        String jsonLoginResponse = new Gson().toJson(loginResponse);
+
+
+        httpServletResponse.setContentType("application/json");
+        httpServletResponse.setStatus(401);
+        httpServletResponse.getWriter().print(jsonLoginResponse);
+
+
+    }
+}
+
+```
+
+InvalidLoginResponse.java
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+public class InvalidLoginResponse {
+    private String username;
+    private String password;
+
+    public InvalidLoginResponse() {
+        this.username = "Invalid Username";
+        this.password = "Invalid Password";
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
+
+```
+
+
+
 ### 4.1 branch59.html
 ### 5. Create User Object, Validation, Repository, Service - branch60
+
+User.java
+
+```java
+package io.agileintelligence.ppmtool.domain;
+
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.util.Date;
+
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Email(message = "Username needs to be an email")
+    @NotBlank(message = "username is required")
+    @Column(unique = true)
+    private String username;
+    @NotBlank(message = "Please enter your full name")
+    private String fullName;
+    @NotBlank(message = "Password field is required")
+    private String password;
+    @Transient
+    private String confirmPassword;
+    private Date create_At;
+    private Date update_At;
+
+    //OneToMany with Project
+
+    public User() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    public Date getCreate_At() {
+        return create_At;
+    }
+
+    public void setCreate_At(Date create_At) {
+        this.create_At = create_At;
+    }
+
+    public Date getUpdate_At() {
+        return update_At;
+    }
+
+    public void setUpdate_At(Date update_At) {
+        this.update_At = update_At;
+    }
+
+    @PrePersist
+    protected void onCreate(){
+        this.create_At = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.update_At = new Date();
+    }
+
+}
+
+```
+
+Java's transient keyword is used to denote that a field is not to be serialized, whereas JPA's @Transient annotation is used to indicate that a field is not to be persisted in the database, i.e. their semantics are different.
+
+=> chỉ ra 1 trường không được biểu thị trong CSDL
+
+UserRepository.java
+
+```java
+package io.agileintelligence.ppmtool.repositories;
+
+import io.agileintelligence.ppmtool.domain.User;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserRepository extends CrudRepository<User, Long> {
+}
+
+```
+
+
+
 ### 5.1 branch60.html
 ### 6. User registration part 1 - branch61
+
+User.java
+
+```java
+package io.agileintelligence.ppmtool.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.util.Collection;
+import java.util.Date;
+
+@Entity
+public class User implements UserDetails {
+    // old code ...
+
+    @PrePersist
+    protected void onCreate(){
+        this.create_At = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.update_At = new Date();
+    }
+
+    /*
+    UserDetails interface methods
+     */
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
+    }
+}
+
+```
+
+UserService
+
+```java
+package io.agileintelligence.ppmtool.services;
+
+
+import io.agileintelligence.ppmtool.domain.User;
+import io.agileintelligence.ppmtool.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+// add
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public User saveUser (User newUser){
+      newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
+
+      //Username has to be unique (exception)
+
+        // Make sure that password and confirmPassword match
+        // We don't persist or show the confirmPassword
+      return userRepository.save(newUser);
+    }
+
+
+
+}
+
+```
+
+PpmtoolApplication.java
+
+```java
+package io.agileintelligence.ppmtool;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+@SpringBootApplication
+public class PpmtoolApplication {
+// add
+    @Bean
+    BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(PpmtoolApplication.class, args);
+    }
+}
+
+```
+
+UserController.java
+
+```java
+package io.agileintelligence.ppmtool.web;
+
+import io.agileintelligence.ppmtool.domain.User;
+import io.agileintelligence.ppmtool.services.MapValidationErrorService;
+import io.agileintelligence.ppmtool.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private MapValidationErrorService mapValidationErrorService;
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result){
+        // Validate passwords match
+
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if(errorMap != null)return errorMap;
+
+        User newUser = userService.saveUser(user);
+
+        return  new ResponseEntity<User>(newUser, HttpStatus.CREATED);
+    }
+}
+
+```
+
+Khi đăng kí user thì allow all
+
+SecurityConfig
+
+```java
+@Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .headers().frameOptions().sameOrigin() //To enable H2 Database
+                .and()
+                .authorizeRequests()
+                .antMatchers(
+                        "/",
+                        "/favicon.ico",
+                        "/**/*.png",
+                        "/**/*.gif",
+                        "/**/*.svg",
+                        "/**/*.jpg",
+                        "/**/*.html",
+                        "/**/*.css",
+                        "/**/*.js"
+                ).permitAll()
+            // add
+                .antMatchers("/api/users/**").permitAll()
+                .anyRequest().authenticated();
+    }
+```
+
+![image-20200513235126113](spring-boot-20-react-redux.assets/image-20200513235126113.png)  
+
+![image-20200513235247108](spring-boot-20-react-redux.assets/image-20200513235247108.png)  
+
+User.java add @JsonIgnore
+
+```java
+/*
+    UserDetails interface methods
+     */
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
+    }
+```
+
+![image-20200513235535950](spring-boot-20-react-redux.assets/image-20200513235535950.png)
+
 ### 6.1 branch61.html
 ### 7. User registration part 2 - branch62
 ### 8. User registration part 3 - branch63
