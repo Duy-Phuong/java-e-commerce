@@ -6022,6 +6022,7 @@ public Project saveOrUpdateProject(Project project, String username){
             if(existingProject !=null &&(!existingProject.getProjectLeader().equals(username))){
                 throw new ProjectNotFoundException("Project not found in your account");
             }else if(existingProject == null){
+                // id="665566"
                 throw new ProjectNotFoundException("Project with ID: '"+project.getProjectIdentifier()+"' cannot be updated because it doesn't exist");
             }
         }
@@ -6032,21 +6033,133 @@ public Project saveOrUpdateProject(Project project, String username){
 
 ![image-20200514163422059](spring-boot-20-react-redux.assets/image-20200514163422059.png)  
 
-
-
-
-
-
+![image-20200514195548030](spring-boot-20-react-redux.assets/image-20200514195548030.png)
 
 ### 14.1 branch69.html
 
 ### 15. User specific Create and Read Ops for Project Tasks - branch70
 
+ProjectTaskService change nếu k k truyề 0 mà truyền summary sẽ lỗi
+
+```java
+ public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask, String username){
+
+
+            //PTs to be added to a specific project, project != null, BL exists
+            Backlog backlog =  projectService.findProjectByIdentifier(projectIdentifier, username).getBacklog(); //backlogRepository.findByProjectIdentifier(projectIdentifier);
+            //set the bl to pt
+            System.out.println(backlog);
+            projectTask.setBacklog(backlog);
+            //we want our project sequence to be like this: IDPRO-1  IDPRO-2  ...100 101
+            Integer BacklogSequence = backlog.getPTSequence();
+            // Update the BL SEQUENCE
+            BacklogSequence++;
+
+            backlog.setPTSequence(BacklogSequence);
+
+            //Add Sequence to Project Task
+            projectTask.setProjectSequence(backlog.getProjectIdentifier()+"-"+BacklogSequence);
+            projectTask.setProjectIdentifier(projectIdentifier);
+
+            //INITIAL priority when priority null
+
+            //INITIAL status when status is null
+            if(projectTask.getStatus()==""|| projectTask.getStatus()==null){
+                projectTask.setStatus("TO_DO");
+            }
+
+            //Fix bug with priority in Spring Boot Server, needs to check null first
+            if(projectTask.getPriority()==null||projectTask.getPriority()==0){ //In the future we need projectTask.getPriority()== 0 to handle the form
+                projectTask.setPriority(3);
+            }
+
+            return projectTaskRepository.save(projectTask);
+
+
+    }
+
+// add username
+public Iterable<ProjectTask>findBacklogById(String id, String username){
+// add
+        projectService.findProjectByIdentifier(id, username);
+
+        return projectTaskRepository.findByProjectIdentifierOrderByPriority(id);
+    }
+```
+
 
 
 ### 15.1 branch70.html
 
+https://github.com/AgileIntelligence/AgileIntPPMTool/commit/5cd0ac7726554e0da249091b387e17472394825f
+
 ### 16. Find, Update, Delete  Project task with Security - branch71
+
+BacklogController thêm principal 
+
+```java
+@GetMapping("/{backlog_id}/{pt_id}")
+    public ResponseEntity<?> getProjectTask(@PathVariable String backlog_id, @PathVariable String pt_id, Principal principal){
+        ProjectTask projectTask = projectTaskService.findPTByProjectSequence(backlog_id, pt_id, principal.getName());
+        return new ResponseEntity<ProjectTask>( projectTask, HttpStatus.OK);
+    }
+
+
+    @PatchMapping("/{backlog_id}/{pt_id}")
+    public ResponseEntity<?> updateProjectTask(@Valid @RequestBody ProjectTask projectTask, BindingResult result,
+                                               @PathVariable String backlog_id, @PathVariable String pt_id, Principal principal ){
+
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if (errorMap != null) return errorMap;
+
+        ProjectTask updatedTask = projectTaskService.updateByProjectSequence(projectTask,backlog_id,pt_id, principal.getName());
+
+        return new ResponseEntity<ProjectTask>(updatedTask,HttpStatus.OK);
+
+    }
+
+
+    @DeleteMapping("/{backlog_id}/{pt_id}")
+    public ResponseEntity<?> deleteProjectTask(@PathVariable String backlog_id, @PathVariable String pt_id, Principal principal){
+        projectTaskService.deletePTByProjectSequence(backlog_id, pt_id, principal.getName());
+
+        return new ResponseEntity<String>("Project Task "+pt_id+" was deleted successfully", HttpStatus.OK);
+    }
+```
+
+ProjectTaskService
+
+```java
+public ProjectTask findPTByProjectSequence(String backlog_id, String pt_id, String username){
+//             Backlog backlog = backlogRepository.findByProjectIdentifier(backlog_id);
+//        if(backlog==null){
+//            throw new ProjectNotFoundException("Project with ID: '"+backlog_id+"' does not exist");
+//        }
+    
+		// add
+        //make sure we are searching on an existing backlog
+        projectService.findProjectByIdentifier(backlog_id, username);
+
+    
+    public ProjectTask updateByProjectSequence(ProjectTask updatedTask, String backlog_id, String pt_id, String username){
+        // add
+        ProjectTask projectTask = findPTByProjectSequence(backlog_id, pt_id, username);
+
+        projectTask = updatedTask;
+
+        return projectTaskRepository.save(projectTask);
+    }
+
+
+    public void deletePTByProjectSequence(String backlog_id, String pt_id, String username){
+        // add
+        ProjectTask projectTask = findPTByProjectSequence(backlog_id, pt_id, username);
+        projectTaskRepository.delete(projectTask);
+    }
+
+```
+
+
 
 ### 16.1 branch71.html
 
