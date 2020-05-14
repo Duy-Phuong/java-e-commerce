@@ -6165,14 +6165,460 @@ public ProjectTask findPTByProjectSequence(String backlog_id, String pt_id, Stri
 
 ## 7. Secure our React App
 ### 1. Intro to Securing the React App, Security Components -branch72
+
+Landing.js
+
+```js
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+
+class Landing extends Component {
+  render() {
+    return (
+      <div className="landing">
+        <div className="light-overlay landing-inner text-dark">
+          <div className="container">
+            <div className="row">
+              <div className="col-md-12 text-center">
+                <h1 className="display-3 mb-4">
+                  Personal Project Management Tool
+                </h1>
+                <p className="lead">
+                  Create your account to join active projects or start your own
+                </p>
+                <hr />
+                <Link className="btn btn-lg btn-primary mr-2" to="/register">
+                  Sign Up
+                </Link>
+                <Link className="btn btn-lg btn-secondary mr-2" to="/login">
+                  Login
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Landing;
+
+```
+
+copy from LandingPage.html
+
+App.js
+
+```js
+<Provider store={store}>
+        <Router>
+          <div className="App">
+            <Header />
+            {
+              //Public Routes
+            }
+
+            <Route exact path="/" component={Landing} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/login" component={Login} />
+
+            {
+              //Private Routes
+            }
+            <Route exact path="/dashboard" component={Dashboard} />
+            <Route exact path="/addProject" component={AddProject} />
+            <Route exact path="/updateProject/:id" component={UpdateProject} />
+            <Route exact path="/projectBoard/:id" component={ProjectBoard} />
+            <Route
+              exact
+              path="/addProjectTask/:id"
+              component={AddProjectTask}
+            />
+            <Route
+              exact
+              path="/updateProjectTask/:backlog_id/:pt_id"
+              component={UpdateProjectTask}
+            />
+          </div>
+        </Router>
+      </Provider>
+```
+
+![image-20200514222925762](spring-boot-20-react-redux.assets/image-20200514222925762.png)  
+
+Register.js
+
+```js
+import React, { Component } from "react";
+
+class Register extends Component {
+  render() {
+    return (
+      <div className="register">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <h1 className="display-4 text-center">Sign Up</h1>
+              <p className="lead text-center">Create your Account</p>
+              <form action="create-profile.html">
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    placeholder="Name"
+                    name="name"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="email"
+                    className="form-control form-control-lg"
+                    placeholder="Email Address"
+                    name="email"
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    className="form-control form-control-lg"
+                    placeholder="Password"
+                    name="password"
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    className="form-control form-control-lg"
+                    placeholder="Confirm Password"
+                    name="password2"
+                  />
+                </div>
+                <input type="submit" className="btn btn-info btn-block mt-4" />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+export default Register;
+
+```
+
+copy from registration.html
+
+Login.js
+
+```js
+import React, { Component } from "react";
+
+class Login extends Component {
+  render() {
+    return (
+      <div className="login">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <h1 className="display-4 text-center">Log In</h1>
+              <form action="dashboard.html">
+                <div className="form-group">
+                  <input
+                    type="email"
+                    className="form-control form-control-lg"
+                    placeholder="Email Address"
+                    name="email"
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    className="form-control form-control-lg"
+                    placeholder="Password"
+                    name="password"
+                  />
+                </div>
+                <input type="submit" className="btn btn-info btn-block mt-4" />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Login;
+
+```
+
+![image-20200514223221419](spring-boot-20-react-redux.assets/image-20200514223221419.png)  
+
+![image-20200514223245172](spring-boot-20-react-redux.assets/image-20200514223245172.png)  
+
+Sau đó sửa lại Link ở Header and Landing page
+
+
+
+
+
+
+
 ### 1.1 branch72.html
 ### 2. User registration happy path - branch73
+
+securityActions.js
+
+```js
+import axios from "axios";
+import { GET_ERRORS } from "./types";
+
+export const createNewUser = (newUser, history) => async dispatch => {
+  try {
+    await axios.post("/api/users/register", newUser);
+    history.push("/login");
+    dispatch({
+      type: GET_ERRORS,
+      payload: {}
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_ERRORS,
+      payload: err.response.data
+    });
+  }
+};
+
+```
+
+Register
+
+```js
+
+class Register extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      username: "",
+      fullName: "",
+      password: "",
+      confirmPassword: "",
+      errors: {}
+    };
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const newUser = {
+      username: this.state.username,
+      fullName: this.state.fullName,
+      password: this.state.password,
+      confirmPassword: this.state.confirmPassword
+    };
+
+    this.props.createNewUser(newUser, this.props.history);
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+    
+    
+  
+Register.propTypes = {
+  createNewUser: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  errors: state.errors
+});
+export default connect(
+  mapStateToProps,
+  { createNewUser }
+)(Register);
+```
+
+
+
 ### 2.1 branch73.html
 ### 3. User registration with validation- branch74
+
+Register.js
+
+```js
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+
+<div className="form-group">
+                  <input
+                    type="text"
+                    className={classnames("form-control form-control-lg", {
+                      "is-invalid": errors.fullName
+                    })}
+                    placeholder="Full Name"
+                    name="fullName"
+                    value={this.state.fullName}
+                    onChange={this.onChange}
+                  />
+                  {errors.fullName && (
+                    <div className="invalid-feedback">{errors.fullName}</div>
+                  )}
+                </div>
+```
+
+
+
 ### 3.1 branch74.html
 ### 4. SecurityActions and SecurityReducer - branch75
+
+securityActions.js
+
+```js
+
+export const login = LoginRequest => async dispatch => {
+  try {
+    // post => Login Request
+    const res = await axios.post("/api/users/login", LoginRequest);
+    // extract token from res.data
+    const { token } = res.data;
+    // store the token in the localStorage
+    localStorage.setItem("jwtToken", token);
+    // set our token in header ***
+    setJWTToken(token);
+    // decode token on React
+    const decoded = jwt_decode(token);
+    // dispatch to our securityReducer
+    dispatch({
+      type: SET_CURRENT_USER,
+      payload: decoded
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_ERRORS,
+      payload: err.response.data
+    });
+  }
+};
+```
+
+setJWTToken.js
+
+```js
+import axios from "axios";
+
+const setJWTToken = token => {
+  if (token) {
+    axios.defaults.headers.common["Authorization"] = token;
+  } else {
+    delete axios.defaults.headers.common["Authorization"];
+  }
+};
+
+export default setJWTToken;
+
+```
+
+install jwt-decode
+
+securityReducer.js
+
+```js
+import { SET_CURRENT_USER } from "../actions/types";
+
+const initialState = {
+  validToken: false,
+  user: {}
+};
+
+const booleanActionPayload = payload => {
+  if (payload) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export default function(state = initialState, action) {
+  switch (action.type) {
+    case SET_CURRENT_USER:
+      return {
+        ...state,
+        validToken: booleanActionPayload(action.payload),
+        user: action.payload
+      };
+
+    default:
+      return state;
+  }
+}
+
+```
+
+Thêm vào index.js
+
 ### 4.1 branch75.html
 ### 5. Login form - branch76
+
+Login.js
+
+```js
+
+class Login extends Component {
+  constructor() {
+    super();
+    this.state = {
+      username: "",
+      password: ""
+    };
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const LoginRequest = {
+      username: this.state.username,
+      password: this.state.password
+    };
+
+    this.props.login(LoginRequest);
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+    
+    
+ 
+Login.propTypes = {
+  login: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  security: state.security,
+  errors: state.errors
+});
+
+export default connect(
+  mapStateToProps,
+  { login }
+)(Login);
+
+```
+
+
+
 ### 5.1 branch76.html
 ### 6. Handle Login logic - branch77
 ### 6.1 branch77.html
