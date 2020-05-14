@@ -5264,32 +5264,785 @@ User.java add @JsonIgnore
 
 ### 6.1 branch61.html
 ### 7. User registration part 2 - branch62
+
+Error when register use the existed email
+
+![image-20200514071746195](spring-boot-20-react-redux.assets/image-20200514071746195.png)  
+
+Custom exception
+
+UsernameAlreadyExistsResponse.java
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+public class UsernameAlreadyExistsResponse {
+
+    private String username;
+
+    public UsernameAlreadyExistsResponse(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+}
+
+```
+
+UsernameAlreadyExistsException.java
+
+```java
+package io.agileintelligence.ppmtool.exceptions;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class UsernameAlreadyExistsException extends RuntimeException {
+
+    public UsernameAlreadyExistsException(String message) {
+        super(message);
+    }
+}
+
+```
+
+CustomResponseEntityExceptionHandler.java
+
+```java
+
+    @ExceptionHandler
+    public final ResponseEntity<Object> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex, WebRequest request){
+        UsernameAlreadyExistsResponse exceptionResponse = new UsernameAlreadyExistsResponse(ex.getMessage());
+        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+```
+
+UserService.java
+
+```java
+public User saveUser (User newUser){
+
+        try{
+            newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
+            //Username has to be unique (exception)
+            newUser.setUsername(newUser.getUsername());
+            // Make sure that password and confirmPassword match
+            // We don't persist or show the confirmPassword
+            return userRepository.save(newUser);
+
+        }catch (Exception e){
+            throw new UsernameAlreadyExistsException("Username '"+newUser.getUsername()+"' already exists");
+        }
+
+    }
+```
+
+
+
 ### 8. User registration part 3 - branch63
+
+UserValidator.java
+
+```java
+package io.agileintelligence.ppmtool.validator;
+
+import io.agileintelligence.ppmtool.domain.User;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+@Component
+public class UserValidator implements Validator {
+
+    @Override
+    public boolean supports(Class<?> aClass) {
+        return User.class.equals(aClass);
+    }
+
+    @Override
+    public void validate(Object object, Errors errors) {
+
+        User user = (User) object;
+
+        if(user.getPassword().length() <6){
+            errors.rejectValue("password","Length", "Password must be at least 6 characters");
+        }
+
+        if(!user.getPassword().equals(user.getConfirmPassword())){
+            errors.rejectValue("confirmPassword","Match", "Passwords must match");
+
+        }
+
+        //confirmPassword
+
+
+
+    }
+}
+
+```
+
+UserController.java
+
+```java
+@Autowired
+    private UserValidator userValidator;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result){
+        // add 
+        // Validate passwords match
+        userValidator.validate(user,result);
+
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if(errorMap != null)return errorMap;
+
+        User newUser = userService.saveUser(user);
+
+        return  new ResponseEntity<User>(newUser, HttpStatus.CREATED);
+    }
+```
+
+![image-20200514073804601](spring-boot-20-react-redux.assets/image-20200514073804601.png)  
+
+![image-20200514073915667](spring-boot-20-react-redux.assets/image-20200514073915667.png)  
+
+Để response field confirmPassword: "" thì phải set "" tại service
+
+UserService.java
+
+```java
+public User saveUser (User newUser){
+
+        try{
+            newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
+            //Username has to be unique (exception)
+            newUser.setUsername(newUser.getUsername());
+            // Make sure that password and confirmPassword match
+            // add
+            // We don't persist or show the confirmPassword
+            newUser.setConfirmPassword("");
+            return userRepository.save(newUser);
+
+        }catch (Exception e){
+            throw new UsernameAlreadyExistsException("Username '"+newUser.getUsername()+"' already exists");
+        }
+
+    }
+
+```
+
+
+
 ### 8.1 branch63.html
 ### 9. JWT Provider pre-work - branch64
+
+UserRepository.java
+
+```java
+package io.agileintelligence.ppmtool.repositories;
+
+import io.agileintelligence.ppmtool.domain.User;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends CrudRepository<User, Long> {
+
+// add
+    User findByUsername(String username);
+    User getById(Long id);
+    
+    // default is
+    // Optional<User> getById(Long id);
+}
+
+```
+
+CustomUserDetailsService.java
+
+```java
+package io.agileintelligence.ppmtool.services;
+
+import io.agileintelligence.ppmtool.domain.User;
+import io.agileintelligence.ppmtool.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username);
+        if(user==null) new UsernameNotFoundException("User not found");
+        return user;
+    }
+
+
+    @Transactional
+    public User loadUserById(Long id){
+        User user = userRepository.getById(id);
+        if(user==null) new UsernameNotFoundException("User not found");
+        return user;
+
+    }
+}
+
+```
+
+SecurityConstants.java
+
+```java
+package io.agileintelligence.ppmtool.security;
+
+public class SecurityConstants {
+
+    public static final String SIGN_UP_URLS = "/api/users/**";
+    public static final String H2_URL = "h2-console/**";
+    public static final String SECRET ="SecretKeyToGenJWTs";
+    public static final String TOKEN_PREFIX= "Bearer "; // must have space
+    public static final String HEADER_STRING = "Authorization";
+    public static final long EXPIRATION_TIME = 30_000; //30 seconds
+}
+
+```
+
+SecurityConfig
+
+```java
+
+                .antMatchers(SIGN_UP_URLS).permitAll()
+                .antMatchers(H2_URL).permitAll()
+```
+
+Create payload/LoginRequest.java
+
+```java
+package io.agileintelligence.ppmtool.payload;
+
+
+import javax.validation.constraints.NotBlank;
+
+public class LoginRequest {
+
+    @NotBlank(message = "Username cannot be blank")
+    private String username;
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
+
+```
+
+JWTLoginSucessReponse.java
+
+```java
+package io.agileintelligence.ppmtool.payload;
+
+public class JWTLoginSucessReponse {
+    private boolean success;
+    private String token;
+
+    public JWTLoginSucessReponse(boolean success, String token) {
+        this.success = success;
+        this.token = token;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    @Override
+    public String toString() {
+        return "JWTLoginSucessReponse{" +
+                "success=" + success +
+                ", token='" + token + '\'' +
+                '}';
+    }
+}
+
+```
+
+SecurityConfig
+
+```java
+	@Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Override
+    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(bCryptPasswordEncoder);
+    }
+
+    @Override
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
+    }
+```
+
+the main things right like we use authentication manager builder to to basically build the authentication manager by actually making sure that the user has the right username and password then we're going to pass that on to the authentication manager.
+
+And that's where that's one of the things that we're going to use to actually generate the token for a user that's completely authenticated.
+
+
+
 ### 9.1 branch64.html
 
 ### 10. Token Generated!!! - branch65
+
+JwtTokenProvider.java
+
+```java
+package io.agileintelligence.ppmtool.security;
+
+import io.agileintelligence.ppmtool.domain.User;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.agileintelligence.ppmtool.security.SecurityConstants.EXPIRATION_TIME;
+import static io.agileintelligence.ppmtool.security.SecurityConstants.SECRET;
+
+@Component
+public class JwtTokenProvider {
+
+    //Generate the token
+
+    public String generateToken(Authentication authentication){
+        User user = (User)authentication.getPrincipal();
+        Date now = new Date(System.currentTimeMillis());
+
+        Date expiryDate = new Date(now.getTime()+EXPIRATION_TIME);
+
+        String userId = Long.toString(user.getId());
+
+        Map<String,Object> claims = new HashMap<>();
+        claims.put("id", (Long.toString(user.getId())));
+        claims.put("username", user.getUsername());
+        claims.put("fullName", user.getFullName());
+
+        return Jwts.builder()
+                .setSubject(userId)
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
+        }
+
+    //Validate the token
+
+    //Get user Id from token
+}
+
+```
+
+UserController.java
+
+```java
+	@Autowired
+    private JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, BindingResult result){
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if(errorMap != null) return errorMap;
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = TOKEN_PREFIX +  tokenProvider.generateToken(authentication);
+
+        return ResponseEntity.ok(new JWTLoginSucessReponse(true, jwt));
+    }
+```
+
+![image-20200514142638696](spring-boot-20-react-redux.assets/image-20200514142638696.png)
 
 ### 10.1 branch65.html
 
 ### 11. Custom JWT filter to use our tokens - branch66
 
+JwtTokenProvider.java
+
+```java
+
+    //Validate the token
+    public boolean validateToken(String token){
+        try{
+            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
+            return true;
+        }catch (SignatureException ex){
+            System.out.println("Invalid JWT Signature");
+        }catch (MalformedJwtException ex){
+            System.out.println("Invalid JWT Token");
+        }catch (ExpiredJwtException ex){
+            System.out.println("Expired JWT token");
+        }catch (UnsupportedJwtException ex){
+            System.out.println("Unsupported JWT token");
+        }catch (IllegalArgumentException ex){
+            System.out.println("JWT claims string is empty");
+        }
+        return false;
+    }
+
+
+    //Get user Id from token
+
+    public Long getUserIdFromJWT(String token){
+        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+        String id = (String)claims.get("id");
+
+        return Long.parseLong(id);
+    }
+```
+
+JwtAuthenticationFilter.java
+
+```java
+package io.agileintelligence.ppmtool.security;
+
+import io.agileintelligence.ppmtool.domain.User;
+import io.agileintelligence.ppmtool.services.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+
+import static io.agileintelligence.ppmtool.security.SecurityConstants.HEADER_STRING;
+import static io.agileintelligence.ppmtool.security.SecurityConstants.TOKEN_PREFIX;
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        try {
+
+            String jwt = getJWTFromRequest(httpServletRequest);
+
+            if(StringUtils.hasText(jwt)&& tokenProvider.validateToken(jwt)){
+                Long userId = tokenProvider.getUserIdFromJWT(jwt);
+                User userDetails = customUserDetailsService.loadUserById(userId);
+
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, Collections.emptyList());
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            }
+
+        }catch (Exception ex){
+            logger.error("Could not set user authentication in security context", ex);
+        }
+
+
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
+
+    }
+
+
+
+    private String getJWTFromRequest(HttpServletRequest request){
+        String bearerToken = request.getHeader(HEADER_STRING);
+
+        if(StringUtils.hasText(bearerToken)&&bearerToken.startsWith(TOKEN_PREFIX)){
+            return bearerToken.substring(7, bearerToken.length());
+        }
+
+        return null;
+    }
+}
+
+```
+
+SecurityConfig.java
+
+```java
+
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {return  new JwtAuthenticationFilter();}
+
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+```
+
+![image-20200514151111487](spring-boot-20-react-redux.assets/image-20200514151111487.png)
+
 ### 11.1 branch66.html
 
 ### 12. One User to Many Projects - branch67
+
+User.java
+
+```java
+//OneToMany with Project
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
+```
+
+Project.java
+
+```java
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User user;
+
+
+    private String projectLeader;
+```
+
+application.properties
+
+```properties
+spring.jpa.hibernate.ddl-auto=create-drop
+# sau do sua lai update
+```
+
+ProjectController.java
+
+```java
+	// add principal
+	@PostMapping("")
+    public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result, Principal principal){
+
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationService(result);
+        if(errorMap!=null) return errorMap;
+
+        Project project1 = projectService.saveOrUpdateProject(project, principal.getName());
+        return new ResponseEntity<Project>(project1, HttpStatus.CREATED);
+    }
+```
+
+ProjectService.java
+
+```java
+public Project saveOrUpdateProject(Project project, String username){
+        try{
+            // add
+            User user = userRepository.findByUsername(username);
+            project.setUser(user);
+            project.setProjectLeader(user.getUsername());
+            project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+
+            if(project.getId()==null){
+                Backlog backlog = new Backlog();
+                project.setBacklog(backlog);
+                backlog.setProject(project);
+                backlog.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+            }
+
+            if(project.getId()!=null){
+                project.setBacklog(backlogRepository.findByProjectIdentifier(project.getProjectIdentifier().toUpperCase()));
+            }
+
+            return projectRepository.save(project);
+
+        }catch (Exception e){
+            throw new ProjectIdException("Project ID '"+project.getProjectIdentifier().toUpperCase()+"' already exists");
+        }
+
+    }
+```
+
+![image-20200514155506825](spring-boot-20-react-redux.assets/image-20200514155506825.png)  
+
+Nếu create successfull
+
+
 
 ### 12.1 branch67.html
 
 ### 13. Lock operations to specific User (Read and Delete) - branch68
 
+ProjectController.java add principal
+
+```java
+@GetMapping("/{projectId}")
+    public ResponseEntity<?> getProjectById(@PathVariable String projectId, Principal principal){
+
+        Project project = projectService.findProjectByIdentifier(projectId, principal.getName());
+
+        return new ResponseEntity<Project>(project, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/all")
+    public Iterable<Project> getAllProjects(Principal principal){return projectService.findAllProjects(principal.getName());}
+
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable String projectId, Principal principal){
+        projectService.deleteProjectByIdentifier(projectId, principal.getName());
+
+        return new ResponseEntity<String>("Project with ID: '"+projectId+"' was deleted", HttpStatus.OK);
+    }
+```
+
+ProjectRepository
+
+```java
+    Iterable<Project> findAllByProjectLeader(String username);
+
+```
+
+ProjectService
+
+```java
+
+    public Project findProjectByIdentifier(String projectId, String username){
+
+        //Only want to return the project if the user looking for it is the owner
+
+        Project project = projectRepository.findByProjectIdentifier(projectId.toUpperCase());
+
+        if(project == null){
+            throw new ProjectIdException("Project ID '"+projectId+"' does not exist");
+
+        }
+
+        // add
+        if(!project.getProjectLeader().equals(username)){
+            throw new ProjectNotFoundException("Project not found in your account");
+        }
+
+
+
+        return project;
+    }
+
+    public Iterable<Project> findAllProjects(String username){
+        return projectRepository.findAllByProjectLeader(username);
+    }
+
+
+    public void deleteProjectByIdentifier(String projectid, String username){
+
+
+// fix
+        projectRepository.delete(findProjectByIdentifier(projectid, username));
+    }
+```
+
+![image-20200514160306197](spring-boot-20-react-redux.assets/image-20200514160306197.png)  
+
+
+
 ### 13.1 branch68.html
 
 ### 14. Lock operations to specific User (Update) - branch69
 
+ProjectService
+
+```java
+public Project saveOrUpdateProject(Project project, String username){
+
+        if(project.getId() != null){
+            Project existingProject = projectRepository.findByProjectIdentifier(project.getProjectIdentifier());
+            if(existingProject !=null &&(!existingProject.getProjectLeader().equals(username))){
+                throw new ProjectNotFoundException("Project not found in your account");
+            }else if(existingProject == null){
+                throw new ProjectNotFoundException("Project with ID: '"+project.getProjectIdentifier()+"' cannot be updated because it doesn't exist");
+            }
+        }
+// ...
+
+    }
+```
+
+![image-20200514163422059](spring-boot-20-react-redux.assets/image-20200514163422059.png)  
+
+
+
+
+
+
+
 ### 14.1 branch69.html
 
 ### 15. User specific Create and Read Ops for Project Tasks - branch70
+
+
 
 ### 15.1 branch70.html
 
