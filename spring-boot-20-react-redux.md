@@ -7017,9 +7017,33 @@ https://github.com/AgileIntelligence/AgileIntPPMTool/commit/8c3fefb8058dea4fb95f
 
 ## 8. Deploy to Heroku
 ### 1. MUST READ REQUIREMENTS FOR THIS SECTION.html
+
+**In order to be able to follow along you need to have the following in place:**
+
+1. Heroku Account
+
+2. Heroku CLI (heroku toolbelt) installed in your system: https://devcenter.heroku.com/articles/heroku-cli
+
+3. Github account
+
+   
+
 ### 2. Step 1 - Connect Spring boot api to Clear DB
 ### 3. YOU NEED THIS FOR STEP 2.html
+
+Please follow the instructions in the next video on how to create the Procfile, DO NOT just copy an paste as is, you need to point to your target / ****.jar file.
+
+
+
+web: java $JAVA_OPTS -jar target/**your_jar_file**.jar -Dserver.port=$PORT $JAR_OPTS
+
 ### 4. Step 2 - Deploy the Back-end to Heroku
 ### 5. Step 3 - Deploy with React build
 ### 6. POLYFILL CDN FOR STEP 4.html
 ### 7. Step 4 - Fix app to work with Internet explorer 11
+
+Please follow the instructions on how to use the CDN for Polyfill in the next section. This enables the app to run on Internet Explorer 11
+
+
+
+<script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js" integrity="sha256-WRc/eG3R84AverJv0zmqxAmdwQxstUpqkiE+avJ3WSo="    crossorigin="anonymous"></script>
