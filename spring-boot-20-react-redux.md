@@ -6621,20 +6621,399 @@ export default connect(
 
 ### 5.1 branch76.html
 ### 6. Handle Login logic - branch77
+
+Login.js
+
+```js
+componentWillReceiveProps(nextProps) {
+    if (nextProps.security.validToken) {
+      this.props.history.push("/dashboard");
+    }
+  }
+```
+
+Sau khi login refresh page => dashboard mất project vì state of security is gone
+
+App.js
+
+```js
+
+const jwtToken = localStorage.jwtToken;
+
+if (jwtToken) {
+  setJWTToken(jwtToken);
+  const decoded_jwtToken = jwt_decode(jwtToken);
+  store.dispatch({
+    type: SET_CURRENT_USER,
+    payload: decoded_jwtToken
+  });
+
+  const currentTime = Date.now() / 1000;
+  if (decoded_jwtToken.exp < currentTime) {
+    //handle logout
+    //window.location.href = "/";
+  }
+}
+```
+
+
+
 ### 6.1 branch77.html
 ### 7. Handle routing for expired token - branch78
+
+Login.js handle errors
+
+```js
+componentWillReceiveProps(nextProps) {
+    if (nextProps.security.validToken) {
+      this.props.history.push("/dashboard");
+    }
+// add
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+
+<div className="form-group">
+                  <input
+                    type="text"
+                    className={classnames("form-control form-control-lg", {
+                      "is-invalid": errors.username
+                    })}
+                    placeholder="Email Address"
+                    name="username"
+                    value={this.state.username}
+                    onChange={this.onChange}
+                  />
+                  {errors.username && (
+                    <div className="invalid-feedback">{errors.username}</div>
+                  )}
+                </div>
+
+
+Login.propTypes = {
+  login: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired,
+  security: PropTypes.object.isRequired // add
+};
+
+const mapStateToProps = state => ({
+  security: state.security,
+  errors: state.errors // add
+});
+```
+
+App.js
+
+```js
+const currentTime = Date.now() / 1000;
+  if (decoded_jwtToken.exp < currentTime) {
+    store.dispatch(logout());
+    window.location.href = "/";
+  }
+```
+
+securityActions.js
+
+```js
+
+export const logout = () => dispatch => {
+  localStorage.removeItem("jwtToken");
+  setJWTToken(false);
+  dispatch({
+    type: SET_CURRENT_USER,
+    payload: {}
+  });
+};
+
+```
+
+convert milisecond to minutes
+
 ### 7.1 branch78.html
 ### 8. Dynamic header based on security state - branch79
+
+Thay create để clear db
+
+Header.js
+
+```js
+
+class Header extends Component {
+  logout() {
+    this.props.logout();
+    window.location.href = "/";
+  }
+  render() {
+    const { validToken, user } = this.props.security;
+
+    const userIsAuthenticated = (
+      <div className="collapse navbar-collapse" id="mobile-nav">
+        <ul className="navbar-nav mr-auto">
+          <li className="nav-item">
+            <Link className="nav-link" to="/dashboard">
+              Dashboard
+            </Link>
+          </li>
+        </ul>
+
+        <ul className="navbar-nav ml-auto">
+          <li className="nav-item">
+            <Link className="nav-link" to="/dashboard">
+              <i className="fas fa-user-circle mr-1" />
+              {user.fullName}
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link
+              className="nav-link"
+              to="/logout"
+              onClick={this.logout.bind(this)}
+            >
+              Logout
+            </Link>
+          </li>
+        </ul>
+      </div>
+    );
+
+    const userIsNotAuthenticated = (
+      <div className="collapse navbar-collapse" id="mobile-nav">
+        <ul className="navbar-nav ml-auto">
+          <li className="nav-item">
+            <Link className="nav-link" to="/register">
+              Sign Up
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/login">
+              Login
+            </Link>
+          </li>
+        </ul>
+      </div>
+    );
+
+    let headerLinks;
+
+    if (validToken && user) {
+      headerLinks = userIsAuthenticated;
+    } else {
+      headerLinks = userIsNotAuthenticated;
+    }
+
+Header.propTypes = {
+  logout: PropTypes.func.isRequired,
+  security: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  security: state.security
+});
+
+export default connect(
+  mapStateToProps,
+  { logout }
+)(Header);
+
+```
+
+
+
 ### 8.1 branch79.html
 ### 9. Lock public routes when logged in - branch80
 
+Login.js nếu đã login thì ra dashboard 
+
+```js
+componentDidMount() {
+    if (this.props.security.validToken) {
+      this.props.history.push("/dashboard");
+    }
+  }
+```
+
+Register.js
+
+```js
+componentDidMount() {
+    if (this.props.security.validToken) {
+      this.props.history.push("/dashboard");
+    }
+  }
+
+
+Register.propTypes = {
+  createNewUser: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired,
+  security: PropTypes.object.isRequired // add
+};
+
+const mapStateToProps = state => ({
+  errors: state.errors,
+  security: state.security // add
+});
+```
+
+Landing.js
+
+```js
+componentDidMount() {
+    if (this.props.security.validToken) {
+      this.props.history.push("/dashboard");
+    }
+  }
+
+
+
+Landing.propTypes = {
+  security: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  security: state.security
+});
+```
+
+
+
 ### 10. SecuredRoutes - branch81
+
+SecureRoute.js nếu chưa login thì go back login
+
+```js
+import React from "react";
+import { Route, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+
+const SecuredRoute = ({ component: Component, security, ...otherProps }) => (
+  <Route
+    {...otherProps}
+    render={props =>
+      security.validToken === true ? (
+        <Component {...props} />
+      ) : (
+        <Redirect to="/login" />
+      )
+    }
+  />
+);
+
+SecuredRoute.propTypes = {
+  security: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  security: state.security
+});
+
+export default connect(mapStateToProps)(SecuredRoute);
+
+```
+
+App.js
+
+```js
+<Switch>
+              <SecuredRoute exact path="/dashboard" component={Dashboard} />
+              <SecuredRoute exact path="/addProject" component={AddProject} />
+              <SecuredRoute
+                exact
+                path="/updateProject/:id"
+                component={UpdateProject}
+              />
+              <SecuredRoute
+                exact
+                path="/projectBoard/:id"
+                component={ProjectBoard}
+              />
+              <SecuredRoute
+                exact
+                path="/addProjectTask/:id"
+                component={AddProjectTask}
+              />
+              <SecuredRoute
+                exact
+                path="/updateProjectTask/:backlog_id/:pt_id"
+                component={UpdateProjectTask}
+              />
+            </Switch>
+```
+
+
 
 ### 10.1 branch81.html
 
 ### 11. Bug Fixes
 
+store.js nếu tắt extension => err
+
+```js
+if (window.navigator.userAgent.includes("Chrome")) {
+const ReactReduxDevTools =
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
+
+if (window.navigator.userAgent.includes("Chrome") && ReactReduxDevTools) {
+  store = createStore(
+    rootReducer,
+    initalState,
+    compose(
+      applyMiddleware(...middleware),
+      window.__REDUX_DEVTOOLS_EXTENSION__ &&
+        window.__REDUX_DEVTOOLS_EXTENSION__()
+      ReactReduxDevTools
+    )
+  );
+} else {
+
+```
+
+Khi update project task
+
+![image-20200515100605997](spring-boot-20-react-redux.assets/image-20200515100605997.png)  
+
+ProjectTask
+
+```js
+ @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date dueDate;
+    //ManyToOne with Backlog
+
+    @Column(updatable = false)
+    private String projectIdentifier;
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date create_At;
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private Date update_At;
+```
+
+ProjectBoard
+
+```js
+ const boardAlgorithm = (errors, project_tasks) => {
+      if (project_tasks.length < 1) {
+        //PROJECT IDENTIFIER BUG
+        if (errors.projectNotFound) {
+          return (
+            <div className="alert alert-danger text-center" role="alert">
+              {errors.projectNotFound}
+            </div>
+          );
+          // add
+        } else if (errors.projectIdentifier) {
+          return (
+            <div className="alert alert-danger text-center" role="alert">
+              {errors.projectIdentifier}
+            </div>
+          );
+```
+
+
+
 ### 11.1 bug fixes commit - 8c3fefb.html
+
+https://github.com/AgileIntelligence/AgileIntPPMTool/commit/8c3fefb8058dea4fb95f7d3ad0f0c5bb1a788ca3
 
 ## 8. Deploy to Heroku
 ### 1. MUST READ REQUIREMENTS FOR THIS SECTION.html
