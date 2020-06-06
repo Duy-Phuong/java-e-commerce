@@ -2751,7 +2751,7 @@ ProjectTask
 ### 3.1 branch33.html
 ### 4. Design discussion around creating a Project Task
 
-explainaton sequence
+explanation sequence
 
 ProjectTaskService
 
@@ -2905,6 +2905,10 @@ https://github.com/AgileIntelligence/AgileIntPPMTool/commit/45848308e4faa8f69266
 
 When get project by id => in post man the number of data retrieve is very large
 
+![image-20200606121549574](spring-boot-20-react-redux.assets/image-20200606121549574.png)  
+
+
+
 Project.java
 
 ```java
@@ -2913,6 +2917,12 @@ Project.java
     @JsonIgnore // add
     private Backlog backlog;
 ```
+
+Sau khi thêm ignore
+
+![image-20200606121722420](spring-boot-20-react-redux.assets/image-20200606121722420.png)  
+
+
 
 BackLogController
 
@@ -2932,6 +2942,8 @@ public Iterable<ProjectTask>findBacklogById(String id){
         return projectTaskRepository.findByProjectIdentifierOrderByPriority(id);
     }
 ```
+
+![image-20200606122124804](spring-boot-20-react-redux.assets/image-20200606122124804.png)  
 
 
 
@@ -3070,7 +3082,7 @@ public ProjectTask findPTByProjectSequence(String backlog_id, String pt_id){
  }
 ```
 
-ProjectController
+BacklogController.java
 
 ```java
 	@GetMapping("/{backlog_id}/{pt_id}")
@@ -3237,6 +3249,16 @@ Backlog.java
 ```
 
 Khi delete project tất cả sẽ bị xóa theo
+
+An orphan removal for those of you that don't know or for removal basically marks say when when the child is no longer referenced from the parent you know then it also gets rid of the child.
+
+So when we delete the project we want the Backlog to go away and then we also want the project tasks to away by association. So we have the project test here and then we have the backlog here that refreshes but it doesn't Cascades all all the way down streams it just refreshes.
+
+So that's where when this goes away then all the tiles are all the objects that are going to be orphaned because there's no bag left because we deleted the project.
+
+![image-20200606144638486](spring-boot-20-react-redux.assets/image-20200606144638486.png)  
+
+
 
 ### 14.1 branch42.html
 
@@ -4049,6 +4071,10 @@ class ProjectTask extends Component {
 
 ### 13. ProjectBoard Algorithm - branch53
 
+![image-20200606180459294](spring-boot-20-react-redux.assets/image-20200606180459294.png)  
+
+
+
 backlogActions.js
 
 ```js
@@ -4829,6 +4855,52 @@ Once again, this does not replace the lectures to come! it only helps those with
 
 Customize message response
 
+https://stackoverflow.com/questions/29721098/enableglobalmethodsecurity-vs-enablewebsecurity
+
+`EnableWebSecurity` will provide configuration via [HttpSecurity](http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#jc-httpsecurity) providing the configuration you could find with `<http></http>` tag in xml configuration, it's allow you to configure your access based on urls patterns, the authentication endpoints, handlers etc...
+
+`EnableGlobalMethodSecurity` provides AOP security on methods, some of annotation it will enable are `PreAuthorize` `PostAuthorize` also it has support for [JSR-250](http://en.wikipedia.org/wiki/JSR_250). [There is also more parameters in configuration for you](http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#method-security-expressions)
+
+For your needs, it's better mix the two. With REST you can achieve all you need only with `@EnableWebSecurity`, since `HttpSecurity#antMatchers(HttpMethod,String...)` accepts controls over Http methods
+
+
+
+https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/builders/HttpSecurity.html
+
+```
+cors()
+```
+
+Adds a `CorsFilter` to be used.
+
+https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/builders/HttpSecurity.html#cors--
+
+```
+csrf()
+```
+
+Adds CSRF support.
+
+`exceptionHandling()`Allows configuring exception handling.
+
+```
+sessionManagement()
+```
+
+Allows configuring of Session Management.
+
+So we want to have this to be statelets we don't want this to save sessions or cookies or anything like that.
+
+Because that's why we want to use a Jaiswal token for so that the server doesn't have to hold a session and every time there's our request coming would have valid token then the server is just going to respond.
+
+```
+headers()
+```
+
+Adds the Security headers to the response.
+
+
+
 SecurityConfig.java
 
 ```java
@@ -4856,7 +4928,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http.cors().and().csrf().disable() // vì sd jwt nên k cần
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -5295,6 +5367,10 @@ SecurityConfig
     }
 ```
 
+![image-20200606211242941](spring-boot-20-react-redux.assets/image-20200606211242941.png)  
+
+
+
 ![image-20200513235126113](spring-boot-20-react-redux.assets/image-20200513235126113.png)  
 
 ![image-20200513235247108](spring-boot-20-react-redux.assets/image-20200513235247108.png)  
@@ -5420,6 +5496,8 @@ public User saveUser (User newUser){
 
     }
 ```
+
+![image-20200606211654000](spring-boot-20-react-redux.assets/image-20200606211654000.png)  
 
 
 
@@ -5704,7 +5782,11 @@ SecurityConfig
     }
 ```
 
-the main things right like we use authentication manager builder to to basically build the authentication manager by actually making sure that the user has the right username and password then we're going to pass that on to the authentication manager.
+And then we obviously use it for our authentication provider.
+
+So basically this takes in the user details service and he takes in the past quarter and then he helps them help us build our authentication manager and then the authentication manager is where we're going to **use to authenticate the user** when the user goes to a log in API 
+
+that those are the main things right like we use authentication manager builder to to basically build the authentication manager by actually making sure that the user has the right username and password then we're going to pass that on to the authentication manager.
 
 And that's where that's one of the things that we're going to use to actually generate the token for a user that's completely authenticated.
 
@@ -5881,7 +5963,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 User userDetails = customUserDetailsService.loadUserById(userId);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, Collections.emptyList());
+                        userDetails, null, Collections.emptyList()); // list of roles
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -6006,7 +6088,7 @@ public Project saveOrUpdateProject(Project project, String username){
 
 Nếu create successfull
 
-
+![image-20200606221952737](spring-boot-20-react-redux.assets/image-20200606221952737.png)  
 
 ### 12.1 branch67.html
 
@@ -6069,6 +6151,7 @@ ProjectService
     }
 
     public Iterable<Project> findAllProjects(String username){
+        // fix
         return projectRepository.findAllByProjectLeader(username);
     }
 
@@ -6116,14 +6199,18 @@ public Project saveOrUpdateProject(Project project, String username){
 
 ### 15. User specific Create and Read Ops for Project Tasks - branch70
 
-ProjectTaskService change nếu k k truyề 0 mà truyền summary sẽ lỗi
+ProjectTaskService change nếu k k truyền 0 mà truyền summary sẽ lỗi
 
 ```java
  public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask, String username){
 
 
             //PTs to be added to a specific project, project != null, BL exists
-            Backlog backlog =  projectService.findProjectByIdentifier(projectIdentifier, username).getBacklog(); //backlogRepository.findByProjectIdentifier(projectIdentifier);
+     // add
+            Backlog backlog =  projectService.findProjectByIdentifier(projectIdentifier, username).getBacklog(); 
+     //backlogRepository.findByProjectIdentifier(projectIdentifier);
+     
+     
             //set the bl to pt
             System.out.println(backlog);
             projectTask.setBacklog(backlog);
@@ -6213,7 +6300,7 @@ public ProjectTask findPTByProjectSequence(String backlog_id, String pt_id, Stri
 //            throw new ProjectNotFoundException("Project with ID: '"+backlog_id+"' does not exist");
 //        }
     
-		// add
+		// thay đoạn trên bằng
         //make sure we are searching on an existing backlog
         projectService.findProjectByIdentifier(backlog_id, username);
 
