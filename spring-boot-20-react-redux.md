@@ -7140,7 +7140,9 @@ Khi update project task
 ProjectTask
 
 ```js
- @JsonFormat(pattern = "yyyy-mm-dd")
+ 
+// Thiếu nên thêm bổ sung JsonFormat
+	@JsonFormat(pattern = "yyyy-mm-dd")
     private Date dueDate;
     //ManyToOne with Backlog
 
