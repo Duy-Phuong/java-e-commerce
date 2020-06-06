@@ -8,6 +8,7 @@
 
 C:\Users\phuong\AppData\Local\Programs\Python\Python37\python.exe F:/programing/language/python/python-docs/readfile.py
 ======== name dir ========
+
 ## 1. Introduction
 ### 1. Introduction
 
@@ -53,7 +54,7 @@ https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfk
 
 ### 3.1 httpsagileintppmtool.herokuapp.com.html
 
-
+https://agileintppmtool.herokuapp.com/
 
 ### 4. WATCH BEFORE YOU BUY Requirements, IDEs, Support
 
@@ -140,6 +141,8 @@ Adding screenshot from latest 2019.2 IDEA Ultimate Edition:
 
 https://stackoverflow.com/questions/32476228/intellij-spring-initializr-not-available
 
+File/ new/ spring-starter-project
+
 ![image-20200507144331578](spring-boot-20-react-redux.assets/image-20200507144331578.png)
 
 ![image-20200507144823022](spring-boot-20-react-redux.assets/image-20200507144823022.png)  
@@ -148,11 +151,21 @@ https://stackoverflow.com/questions/32476228/intellij-spring-initializr-not-avai
 
 Chọn location D:\Source\spring boot\ppmtool
 
+đầu tiên tạo repo remote và làm theo HD trên git
+
 ```shell
+git init
+git add . 
+git commit -m "add"
+git remote add origin https://
+git push -u origin master
+
 git branch
 git branch branch0
 git checkout branch0
 git push --set-upstream origin branch0
+
+git checkout master # must switch here
 git merge branch0 # merge to master
 git push
 
@@ -924,6 +937,56 @@ Edit setting.json
   }
 ```
 
+full
+
+```json
+{
+  // Controls if the editor should automatically format the line after typing
+  // "editor.formatOnSave": true,
+  "pasteImage.path": "${projectRoot}/root/img",
+  "pasteImage.basePath": "${projectRoot}/root",
+  "pasteImage.forceUnixStyleSeparator": true,
+  "pasteImage.prefix": "./root/",
+  "workbench.colorTheme": "Atom One Dark",
+  "material-icon-theme.folders.color": "#7cb342",
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.fontSize": 16,
+  "editor.suggestSelection": "first",
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "editor.formatOnSave": true,
+  // Enable per-language
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4
+  },
+  "workbench.colorCustomizations": {
+    "tab.activeBackground": "#6c5ce7",
+    "activityBar.background": "#282c34",
+    "sideBar.background": "#282c34"
+  },
+  "editor.tabSize": 4,
+  "editor.renderWhitespace": "all",
+  "git.enableSmartCommit": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.singleQuote": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "tabnine.experimentalAutoImports": 0
+}
+
+```
+
 
 
 ### 3. Create and review Boiler Plate react app - branch11
@@ -1083,11 +1146,14 @@ Dashboard
 ```
 
 ### 6.1 branch14.html
+
+![image-20200606003036241](spring-boot-20-react-redux.assets/image-20200606003036241.png)
+
 ### 7. Style our Dashboard, Navbar, ProjectItem - branch15
 
-Override app.css
+Override app.css từ PPMToolDesign/App.css
 
-Copy NavBar trong Dashboard vào Header
+Copy NavBar trong Dashboard.html vào Header
 
 Header.js
 
@@ -1142,6 +1208,8 @@ class Header extends Component {
 export default Header;
 
 ```
+
+![image-20200606003554893](spring-boot-20-react-redux.assets/image-20200606003554893.png)  
 
 ProjectItem.js
 
@@ -2332,6 +2400,8 @@ package.json
   "proxy": "http://localhost:8080"
 ```
 
+Sau đó chỉ cần gọi axios.get("/api/project/all"); là ok
+
 projectActions.js
 
 ```js
@@ -2645,6 +2715,12 @@ public interface BacklogRepository extends CrudRepository<Backlog, Long> {
 
 ```
 
+![image-20200606104725003](spring-boot-20-react-redux.assets/image-20200606104725003.png)  
+
+![image-20200606104744424](spring-boot-20-react-redux.assets/image-20200606104744424.png)  
+
+![image-20200606104838594](spring-boot-20-react-redux.assets/image-20200606104838594.png)  
+
 
 
 ### 2.1 branch32.html
@@ -2786,7 +2862,7 @@ data postman
 }
 ```
 
-
+![image-20200606120247734](spring-boot-20-react-redux.assets/image-20200606120247734.png)  
 
 
 
@@ -2809,6 +2885,7 @@ backlog.setPTSequence(BacklogSequence);
             projectTask.setStatus("TO_DO");
         }
 
+// add
         if(projectTask.getPriority()==null){ //In the future we need projectTask.getPriority()== 0 to handle the form
             projectTask.setPriority(3);
         }
