@@ -949,11 +949,199 @@ VALUES ('BOOK-TECH-1004', 'The Go Programming Language: A to Z', 'Learn Go',
 
 ### 7. Develop JPA Entities - Part 2
 
+application.properties
+
+```properties
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/full-stack-ecommerce?useSSL=false&useUnicode=yes&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=ecommerceapp
+spring.datasource.password=ecommerceapp
+
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+spring.data.rest.base-path=/api
+
+
+```
+
+![image-20200612233827094](angular-java-spring-boot.assets/image-20200612233827094.png)  
+
+entity/Product.java
+
+```java
+package com.luv2code.ecommerce.entity;
+
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Entity
+@Table(name="product")
+@Data
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private ProductCategory category;
+
+    @Column(name = "sku")
+    private String sku;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "active")
+    private boolean active;
+
+    @Column(name = "units_in_stock")
+    private int unitsInStock;
+
+    @Column(name = "date_created")
+    @CreationTimestamp
+    private Date dateCreated;
+
+    @Column(name = "last_updated")
+    @UpdateTimestamp
+    private Date lastUpdated;
+}
+
+```
+
+ProductCategory
+
+```java
+package com.luv2code.ecommerce.entity;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.*;
+import java.util.Set;
+
+@Entity
+@Table(name="product_category")
+// @Data -- known bug
+@Getter
+@Setter
+public class ProductCategory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "category_name")
+    private String categoryName;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+    private Set<Product> products;
+
+}
+```
+
+
+
 ### 8. Create REST APIs with Spring Data JPA Repositories and Spring Data REST
+
+ProductRepository.java
+
+```java
+package com.luv2code.ecommerce.dao;
+
+import com.luv2code.ecommerce.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+@CrossOrigin("http://localhost:4200")
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}
+
+```
+
+ProductCategoryRepository.java
+
+```java
+package com.luv2code.ecommerce.dao;
+
+import com.luv2code.ecommerce.entity.ProductCategory;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+@CrossOrigin("http://localhost:4200")
+@RepositoryRestResource(collectionResourceRel = "productCategory", path = "product-category")
+public interface ProductCategoryRepository extends JpaRepository<ProductCategory, Long> {
+}
+
+```
+
+![image-20200613003737110](angular-java-spring-boot.assets/image-20200613003737110.png)  
+
+![image-20200613003828811](angular-java-spring-boot.assets/image-20200613003828811.png)  
+
+![image-20200613003855940](angular-java-spring-boot.assets/image-20200613003855940.png)  
+
+![image-20200613003920513](angular-java-spring-boot.assets/image-20200613003920513.png)
 
 ### 9. REST APIs - Configure for Read Only - Overview
 
 ### 10. REST APIs - Configure for Read Only - Write Some Code
+
+config/MyDataRestConfig.java
+
+```java
+package com.luv2code.ecommerce.config;
+
+import com.luv2code.ecommerce.entity.Product;
+import com.luv2code.ecommerce.entity.ProductCategory;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
+import org.springframework.http.HttpMethod;
+
+@Configuration
+public class MyDataRestConfig implements RepositoryRestConfigurer {
+
+    @Override
+    public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
+
+        HttpMethod[] theUnsupportedActions = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PATCH};
+
+        // disable HTTP methods for Product: PUT, POST, DELETE and PATCH
+        config.getExposureConfiguration()
+                .forDomainType(Product.class)
+                .withItemExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions))
+                .withCollectionExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions));
+
+        // disable HTTP methods for ProductCategory: PUT, POST, DELETE and PATCH
+        config.getExposureConfiguration()
+                .forDomainType(ProductCategory.class)
+                .withItemExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions))
+                .withCollectionExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions));
+
+    }
+}
+```
+
+![image-20200613004550894](angular-java-spring-boot.assets/image-20200613004550894.png)  
 
 ## 10. eCommerce Project - Angular Front End - Product List
 
