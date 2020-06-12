@@ -829,11 +829,123 @@ java -jar lombok.jar
 
 ![image-20200612222915304](angular-java-spring-boot.assets/image-20200612222915304.png)  
 
+create-user
+
+```sql
+CREATE USER 'ecommerceapp'@'localhost' IDENTIFIED BY 'ecommerceapp';
+
+GRANT ALL PRIVILEGES ON * . * TO 'ecommerceapp'@'localhost';
+
+#
+# Starting with MySQL 8.0.4, the MySQL team changed the 
+# default authentication plugin for MySQL server 
+# from mysql_native_password to caching_sha2_password.
+#
+# The command below will make the appropriate updates for your user account.
+#
+# See the MySQL Reference Manual for details: 
+# https://dev.mysql.com/doc/refman/8.0/en/caching-sha2-pluggable-authentication.html
+#
+ALTER USER 'ecommerceapp'@'localhost' IDENTIFIED WITH mysql_native_password BY 'ecommerceapp';
+```
+
+create-product
+
+```sql
+-- -----------------------------------------------------
+-- Schema full-stack-ecommerce
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `full-stack-ecommerce`;
+
+CREATE SCHEMA `full-stack-ecommerce`;
+USE `full-stack-ecommerce` ;
+
+-- -----------------------------------------------------
+-- Table `full-stack-ecommerce`.`product_category`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `full-stack-ecommerce`.`product_category` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `category_name` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`))
+ENGINE=InnoDB
+AUTO_INCREMENT = 1;
+
+-- -----------------------------------------------------
+-- Table `full-stack-ecommerce`.`product`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `full-stack-ecommerce`.`product` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `sku` VARCHAR(255) DEFAULT NULL,
+  `name` VARCHAR(255) DEFAULT NULL,
+  `description` VARCHAR(255) DEFAULT NULL,
+  `unit_price` DECIMAL(13,2) DEFAULT NULL,
+  `image_url` VARCHAR(255) DEFAULT NULL,
+  `active` BIT DEFAULT 1,
+  `units_in_stock` INT(11) DEFAULT NULL,
+   `date_created` DATETIME(6) DEFAULT NULL,
+  `last_updated` DATETIME(6) DEFAULT NULL,
+  `category_id` BIGINT(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_category` (`category_id`),
+  CONSTRAINT `fk_category` FOREIGN KEY (`category_id`) REFERENCES `product_category` (`id`)
+) 
+ENGINE=InnoDB
+AUTO_INCREMENT = 1;
+
+
+-- -----------------------------------------------------
+-- Add sample data
+-- -----------------------------------------------------
+
+INSERT INTO PRODUCT_CATEGORY(CATEGORY_NAME) VALUES ('BOOKS');
+
+INSERT INTO PRODUCT (SKU, NAME, DESCRIPTION, IMAGE_URL, ACTIVE, UNITS_IN_STOCK,
+UNIT_PRICE, CATEGORY_ID,DATE_CREATED)
+VALUES ('BOOK-TECH-1000', 'JavaScript - The Fun Parts', 'Learn JavaScript',
+'assets/images/products/placeholder.png'
+,1,100,19.99,1, NOW());
+
+INSERT INTO PRODUCT (SKU, NAME, DESCRIPTION, IMAGE_URL, ACTIVE, UNITS_IN_STOCK,
+UNIT_PRICE, CATEGORY_ID, DATE_CREATED)
+VALUES ('BOOK-TECH-1001', 'Spring Framework Tutorial', 'Learn Spring',
+'assets/images/products/placeholder.png'
+,1,100,29.99,1, NOW());
+
+INSERT INTO PRODUCT (SKU, NAME, DESCRIPTION, IMAGE_URL, ACTIVE, UNITS_IN_STOCK,
+UNIT_PRICE, CATEGORY_ID, DATE_CREATED)
+VALUES ('BOOK-TECH-1002', 'Kubernetes - Deploying Containers', 'Learn Kubernetes',
+'assets/images/products/placeholder.png'
+,1,100,24.99,1, NOW());
+
+INSERT INTO PRODUCT (SKU, NAME, DESCRIPTION, IMAGE_URL, ACTIVE, UNITS_IN_STOCK,
+UNIT_PRICE, CATEGORY_ID, DATE_CREATED)
+VALUES ('BOOK-TECH-1003', 'Internet of Things (IoT) - Getting Started', 'Learn IoT',
+'assets/images/products/placeholder.png'
+,1,100,29.99,1, NOW());
+
+INSERT INTO PRODUCT (SKU, NAME, DESCRIPTION, IMAGE_URL, ACTIVE, UNITS_IN_STOCK,
+UNIT_PRICE, CATEGORY_ID, DATE_CREATED)
+VALUES ('BOOK-TECH-1004', 'The Go Programming Language: A to Z', 'Learn Go',
+'assets/images/products/placeholder.png'
+,1,100,24.99,1, NOW());
+
+```
+
 
 
 ### 5. Create Spring Boot Starter Project
 
+![image-20200612230102776](angular-java-spring-boot.assets/image-20200612230102776.png)  
+
+![image-20200612230438820](angular-java-spring-boot.assets/image-20200612230438820.png)  
+
+
+
 ### 6. Develop JPA Entities - Part 1
+
+![image-20200612230753386](angular-java-spring-boot.assets/image-20200612230753386.png)  
+
+
 
 ### 7. Develop JPA Entities - Part 2
 
