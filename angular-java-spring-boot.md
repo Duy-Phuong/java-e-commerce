@@ -698,9 +698,94 @@ for (let tempCoach of theCoaches) {
 
 ### 3. Angular Conditionals and Formatting - Overview
 
+sales-person-list-bootstrap.component.html
+
+```html
+<table class="table table-hover">
+
+    <thead class="thead-dark">
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Sales Volume</th>
+            <th>Met Quota?</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr *ngFor="let tempSalesPerson of salesPersonList">
+            <td>{{ tempSalesPerson.firstName }}</td>
+            <td>{{ tempSalesPerson.lastName }}</td>
+            <td>{{ tempSalesPerson.email }}</td>
+            <td>{{ tempSalesPerson.salesVolume | currency:'USD'}}</td>
+
+            <td>
+                <div *ngIf="tempSalesPerson.salesVolume >= 60000; else myElseBlock">Yes</div>
+                <ng-template #myElseBlock>No</ng-template>
+            </td>
+        </tr>
+
+    </tbody>
+
+</table>
+```
+
+
+
 ### 4. Angular Conditionals and Formatting - Write Some Code
 
 ### 5. Bonus Angular Conditionals How to highlight table row.html
+
+Bonus: Angular Conditionals: How to highlight table row
+
+**Question**
+
+We have learned we can display condition value for Met Quota column by ngIf. If I wanted to highlighted complete row as background color green which has sales volume 60000 or more. How can I accomplish this task?
+
+
+
+**Answer**
+
+[***Read the complete answer online\***](https://github.com/darbyluv2code/fullstack-angular-and-springboot/blob/master/bonus-content/angular-crash-course/02-ngIf-highlight-entire-row/02-ngif-highligh-entire-row.md)
+
+https://github.com/darbyluv2code/fullstack-angular-and-springboot/blob/master/bonus-content/angular-crash-course/02-ngIf-highlight-entire-row/02-ngif-highligh-entire-row.md
+
+
+
+## Development Process
+
+1. Create a local CSS style for Green
+2. Update HTML to apply style to row
+
+------
+
+### 1. Create a local CSS style for Green
+
+In the CSS file for your component, you can create a local CSS style. This is setting the background color of an element to green.
+
+File: **sales-person-list.component.css**
+
+```
+    .highlight {
+      background-color:green
+    }
+```
+
+### 2. Update HTML to apply style to row
+
+In your component, you can make use of `[ngClass]` to conditionally apply styles to an element.
+
+The basic syntax is:
+
+```
+    <div [ngClass]="{
+       'class1': condition  (the true condition),
+       'class2': !condition (else)
+    }">
+```
+
+In our example, we will use the `[ngClass]`. This will give a red background for the entire row for a sales person whose `quota is >= 60000`.
 
 ## 9. eCommerce Project - Spring Boot Backend
 
@@ -710,7 +795,41 @@ for (let tempCoach of theCoaches) {
 
 ### 3. HEADS UP Eclipse and Lombok.html
 
+HEADS UP: Eclipse and Lombok
+
+**Eclipse and Lombok**
+
+If you are using Eclipse instead of IntelliJ, there are additional installations steps you need.
+
+To add Lombok support to Eclipse. Follow the steps below:
+
+
+
+\1. Download the Lombok JAR file installer from this link:
+
+https://projectlombok.org/downloads/lombok.jar
+
+
+
+\2. Double-click the downloaded JAR file installer to start the installation process.
+
+
+
+Note: Instead of double-click, you can run the installer from the command line. Move to the directory where you downloaded the file.
+
+```
+java -jar lombok.jar
+```
+
+
+
+\3. Follow the steps in the installer.
+
 ### 4. Set Up Database Tables
+
+![image-20200612222915304](angular-java-spring-boot.assets/image-20200612222915304.png)  
+
+
 
 ### 5. Create Spring Boot Starter Project
 
