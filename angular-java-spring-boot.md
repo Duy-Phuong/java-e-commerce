@@ -8,27 +8,250 @@ C:\Users\Admin\AppData\Local\Programs\Python\Python38-32\python.exe E:/programin
 ## 1. Introduction
 ### 1. Introduction
 ### 2. How To Take This Course and How To Get Help.html
+
+How To Take This Course and How To Get Help
+
+**How To Take This Course**
+
+As you go through the course, I highly recommend that you type the code along with me in the videos. This is the best way to learn the material.
+
+Some students will watch the video first and then replay it while typing in the code. Others like to type along on the first watch. Choose whatever approach works for you.
+
+But the important thing is that you type in the code. This is the most effective way to really learn the material.
+
+\----
+
+***How To Get Help\***
+
+If you have any coding questions or have a syntax error, here's how you can get help:
+
+**1. Download the source code.** 
+
+Every coding video has the solution code attached. You can download the solution and compare your code against the solution code.
+
+**2. Post a Message**
+
+If you are not able to resolve the problem, post a message to the discussion forum. Be sure to paste your Java source code along with any relevant config files.
+
+I'm a very responsive instructor and I'll respond to your question in 24 hours.
+
+Enjoy the class :-)
+
 ### 3. Download the Source Code and PDF Files.html
+
+Download the Source Code and PDF Files
+
+**Download Source Code:**
+
+You have two options for downloading the code.
+
+*Option 1: Download zip file*
+
+File: [**full-stack-angular-and-springboot-master.zip**](https://github.com/darbyluv2code/fullstack-angular-and-springboot/archive/master.zip)
+
+*
+Option 2: Download using git command-line*
+
+You also have the option to download source code using git command-line.
+
+```
+git clone https://github.com/darbyluv2code/fullstack-angular-and-springboot.git
+```
+
+
+
+Note: Option 1 and Option 2 both reference the exact same code. You only need to choose one of the options.
+
+
+\---
+**Download PDF Files**
+
+All slides which are shown during the course are available also as a reference and can be downloaded here:
+
+http://www.luv2code.com/download-full-stack-angular-and-springboot-pdf-slides
+
 ## 2. Angular Overview
 ### 1. Angular Overview
 ## 3. Set Up Development Tools
 ### 1. Set Up Development Tools
 ## 4. TypeScript Crash Course - Fundamentals
 ### 1. TypeScript Overview
+
+`tsc hello.ts`
+
 ### 2. Creating our first TypeScript application
+
+![image-20200612200909288](Untitled.assets/image-20200612200909288.png)
+
 ### 3. Defining Variables - Overview
 ### 4. Defining Variables - Write Some Code
 ### 5. Creating Loops and Arrays - Overview
+
+```ts
+let reviews: number[] = [5, 5, 4.5, 1, 3];
+
+let total: number = 0;
+
+for (let i=0; i < reviews.length; i++) {
+    console.log(reviews[i]);
+    total += reviews[i];
+}
+
+let average: number = total / reviews.length;
+console.log("Review average = " + average);
+
+let sportsTwo: string[] = ["Golf", "Cricket", "Tennis"];
+
+sportsTwo.push("Baseball");
+sportsTwo.push("Futbol");
+
+for (let tempSport of sportsTwo) {
+    console.log(tempSport);
+}
+
+let sportsOne: string[] = ["Golf", "Cricket", "Tennis", "Swimming"];
+
+for (let tempSport of sportsOne) {
+
+    if (tempSport == "Cricket") {
+        console.log(tempSport  + " << My Favorite!");
+    }
+    else {
+        console.log(tempSport);
+    }
+}
+```
+
+
+
 ### 6. Creating Loops and Arrays - Write Some Code - Part 1
 ### 7. Creating Loops and Arrays - Write Some Code - Part 2
 ## 5. TypeScript Crash Course - Creating Classes
 ### 1. Creating Classes - Overview
+
+```ts
+class Customer {
+
+    firstName: string;
+    lastName: string;
+
+    constructor(theFirst: string, theLast: string) {
+        this.firstName = theFirst;
+        this.lastName = theLast;
+    }
+}
+
+// let's create an instance
+let myCustomer = new Customer("Martin", "Dixon");
+
+console.log(myCustomer.firstName);
+console.log(myCustomer.lastName);
+```
+
+![image-20200612201512539](Untitled.assets/image-20200612201512539.png)  
+
+![image-20200612201551428](Untitled.assets/image-20200612201551428.png)
+
 ### 2. Creating Classes - Write Some Code
 ### 3. Defining Accessors - Overview
+
+```ts
+class Customer {
+
+    private _firstName: string;
+    private _lastName: string;
+
+    constructor(theFirst: string, theLast: string) {
+        this._firstName = theFirst;
+        this._lastName = theLast;
+    }
+
+    public get firstName(): string {
+        return this._firstName;
+    }
+
+    public set firstName(value: string) {
+        this._firstName = value;
+    }
+
+    public get lastName(): string {
+        return this._lastName;
+    }
+    public set lastName(value: string) {
+        this._lastName = value;
+    }
+    
+}
+
+// let's create an instance
+let myCustomer = new Customer("Martin", "Dixon");
+
+myCustomer.firstName = "Susan";
+myCustomer.lastName = "Public";
+
+console.log(myCustomer.firstName);
+console.log(myCustomer.lastName);
+```
+
+![image-20200612201816371](Untitled.assets/image-20200612201816371.png)  
+
+![image-20200612201832080](Untitled.assets/image-20200612201832080.png)
+
 ### 4. Defining Accessors - Write Some Code
 ### 5. Configuring Compiler Options with tsconfig.json
+
+`tsc --init`
+
 ### 6. Parameter Properties
+
+![image-20200612202318255](Untitled.assets/image-20200612202318255.png)  
+
+
+
+```ts
+class Customer {
+
+    constructor(private _firstName: string, private _lastName: string) {
+    }
+
+    public get firstName(): string {
+        return this._firstName;
+    }
+
+    public set firstName(value: string) {
+        this._firstName = value;
+    }
+
+    public get lastName(): string {
+        return this._lastName;
+    }
+    public set lastName(value: string) {
+        this._lastName = value;
+    }
+    
+}
+
+// let's create an instance
+let myCustomer = new Customer("Martin", "Dixon");
+
+console.log(myCustomer.firstName);
+console.log(myCustomer.lastName);
+```
+
+```shell
+tsc --init
+tsc --build --clean
+tsc
+```
+
+
+
 ### 7. TypeScript Modules Import and Export
+
+export class ...
+
+import {Customer} from ..
+
 ## 6. TypeScript Crash Course - Inheritance and Interfaces
 ### 1. Inheritance - Overview
 ### 2. Inheritance - Creating the Superclass and Subclass
