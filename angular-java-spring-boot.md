@@ -2484,103 +2484,1630 @@ product-list-grid.component.html
                 </div>
 ```
 
-![image-20200613162736609](angular-java-spring-boot.assets/image-20200613162736609.png)
+![image-20200613162736609](angular-java-spring-boot.assets/image-20200613162736609.png)  
+
+![image-20200613162826196](angular-java-spring-boot.assets/image-20200613162826196.png)  
+
+![image-20200613162844265](angular-java-spring-boot.assets/image-20200613162844265.png)  
+
+
 
 ## 15. eCommerce Project - Product Master-Detail View
 
 ### 1. Angular Project - Product Master-Detail View - Overview
 
+Development Process
+
+1. Create new component for product details
+
+2. Add new Angular route for product details
+
+3. Add router links to the product-list-grid HTML page
+
+4. Enhance ProductDetailsComponent to retrieve product from ProductService
+
+5. Update ProductService to call URL on Spring Boot app
+
+6. Update HTML page for ProductDetailsComponent to display product details
+
 ### 2. Angular Project - Product Master-Detail View - Create new component and route
+
+`ng generate component components/ProductDetails`
+
+![image-20200613181007219](angular-java-spring-boot.assets/image-20200613181007219.png)  
+
+app.module
+
+```ts
+
+const routes: Routes = [
+  {path: 'products/:id', component: ProductDetailsComponent}, // add
+  {path: 'search/:keyword', component: ProductListComponent},
+  {path: 'category/:id', component: ProductListComponent},
+  {path: 'category', component: ProductListComponent},
+  {path: 'products', component: ProductListComponent},
+  {path: '', redirectTo: '/products', pathMatch: 'full'},
+  {path: '**', redirectTo: '/products', pathMatch: 'full'}
+];
+```
+
+
 
 ### 3. Angular Project - Product Master-Detail View - Add router links on Master page
 
+product-list-grid.component
+
+```ts
+		<a routerLink="/products/{{ tempProduct.id }}">
+                        <img src="{{ tempProduct.imageUrl }}" class="img-responsi                    </a>
+		<a routerLink="/products/{{ tempProduct.id }}">
+                         <h1>{{ tempProduct.name }}</h1>
+         </a>
+```
+
+
+
 ### 4. Angular Project - Product Master-Detail View - Enhance the Details Component
 
+product-details.component.html
+
+```html
+<div class="detail-section">
+    <div class="container-fluid">
+
+        <img src="{{ product.imageUrl }}" class="detail-img">
+
+        <h3>{{ product.name }}</h3>
+        <div class="price">{{ product.unitPrice | currency:'USD' }}</div>
+        <a href="#" class="primary-btn">Add to cart</a>
+
+        <hr>
+        <h4>Description</h4>
+        <p>{{ product.description }}</p>
+
+        <a routerLink="/products" class="mt-5">Back to Product List</a>
+    </div>
+</div>
+
+```
+
+product-details.component.ts
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { Product } from 'src/app/common/product';
+import { ProductService } from 'src/app/services/product.service';
+import { ActivatedRoute } from '@angular/router';
+
+@Component({
+  selector: 'app-product-details',
+  templateUrl: './product-details.component.html',
+  styleUrls: ['./product-details.component.css']
+})
+export class ProductDetailsComponent implements OnInit {
+
+  product: Product = new Product();
+
+  constructor(private productService: ProductService,
+              private route: ActivatedRoute) { }
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(() => {
+      this.handleProductDetails();
+    })
+  }
+
+  handleProductDetails() {
+
+    // get the "id" param string. convert string to a number using the "+" symbol
+    const theProductId: number = +this.route.snapshot.paramMap.get('id');
+
+    this.productService.getProduct(theProductId).subscribe(
+      data => {
+        this.product = data;
+      }
+    )
+  }
+
+}
+
+```
+
+
+
 ### 5. Angular Project - Product Master-Detail View - Update Product Service and HTML
+
+product.service.ts
+
+```ts
+
+  getProduct(theProductId: number): Observable<Product> {
+
+    // need to build URL based on product id
+    const productUrl = `${this.baseUrl}/${theProductId}`;
+
+    return this.httpClient.get<Product>(productUrl);
+  }
+```
+
+
 
 ### 6. Angular Project - Product Master-Detail View - Add more Product Details
 
 ### 7. Angular Project - Race Conditions
 
+![image-20200613185513289](angular-java-spring-boot.assets/image-20200613185513289.png)  
+
+![image-20200613194847928](angular-java-spring-boot.assets/image-20200613194847928.png)  
+
+có 2 cách fix 
+
+Cách 1: `product: Product = new Product();`
+
+Cách 2:
+
+`        <img src="{{ product?.imageUrl }}" class="detail-img">`
+
+
+
+![image-20200613195327020](angular-java-spring-boot.assets/image-20200613195327020.png)
+
 ### 8. IDE Extension - Angular Language Service
+
+product không có id nhưng template access id => no error
+
+install Angualr language service in vs code
+
+![image-20200613200423643](angular-java-spring-boot.assets/image-20200613200423643.png) 
+
+Sau đó thêm id cho Product
 
 ## 16. eCommerce Project - Pagination
 
 ### 1. Angular Project- Pagination Overview
 
+https://docs.spring.io/spring-data/rest/docs/current/reference/html/#repository-resources.query-method-resource
+
+![image-20200613201101329](angular-java-spring-boot.assets/image-20200613201101329.png)  
+
+![image-20200613201300651](angular-java-spring-boot.assets/image-20200613201300651.png)
+
 ### 2. Angular Project - Pagination Development Process - Part 1
+
+Development Process
+
+1. Install ng-bootstrap
+2. Refactor the interface for: GetResponseProducts
+3. Add pagination support to ProductService
+4. Update ProductListComponent to handle pagination
+5. Enhance HTML template to use ng-bootstrap pagination component
+
+![image-20200613201511643](angular-java-spring-boot.assets/image-20200613201511643.png)  
+
+
 
 ### 3. Angular Project - Pagination Development Process - Part 2
 
 ### 4. Angular Project - Pagination - Install ng-bootstrap
 
+```shell
+ng add @angular/localize
+npm install @ng-bootstrap/ng-bootstrap
+```
+
+app.module.ts
+
+```ts
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    ProductListComponent,
+    ProductCategoryMenuComponent,
+    SearchComponent,
+    ProductDetailsComponent
+  ],
+  imports: [
+    RouterModule.forRoot(routes),
+    BrowserModule,
+    HttpClientModule,
+    NgbModule // add
+  ],
+  providers: [ProductService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+```
+
+
+
 ### 5. Angular Project - Pagination - Add Pagination support to Product Service
 
+![image-20200613202908114](angular-java-spring-boot.assets/image-20200613202908114.png)  
+
+product.service.ts
+
+```ts
+interface GetResponseProducts {
+  _embedded: {
+    products: Product[];
+  },
+      // add
+  page: {
+    size: number,
+    totalElements: number,
+    totalPages: number,
+    number: number
+  }
+}
+
+
+  getProductListPaginate(thePage: number, 
+                         thePageSize: number, 
+                         theCategoryId: number): Observable<GetResponseProducts> {
+
+    // need to build URL based on category id, page and size 
+    const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`
+                    + `&page=${thePage}&size=${thePageSize}`;
+
+    return this.httpClient.get<GetResponseProducts>(searchUrl);
+  }
+```
+
+
+
 ### 6. Angular Project - Pagination - Update Product List Component for Pagination
+
+product-list.component.ts
+
+```ts
+  products: Product[] = [];
+  currentCategoryId: number = 1;
+  previousCategoryId: number = 1;
+  searchMode: boolean = false;
+
+  // new properties for pagination
+  thePageNumber: number = 1;
+  thePageSize: number = 10;
+  theTotalElements: number = 0;
+
+handleListProducts() {
+
+    // check if "id" parameter is available
+    const hasCategoryId: boolean = this.route.snapshot.paramMap.has('id');
+
+    if (hasCategoryId) {
+      // get the "id" param string. convert string to a number using the "+" symbol
+      this.currentCategoryId = +this.route.snapshot.paramMap.get('id');
+    }
+    else {
+      // not category id available ... default to category id 1
+      this.currentCategoryId = 1;
+    }
+
+    // add
+    // Check if we have a different category than previous
+    // Note: Angular will reuse a component if it is currently being viewed
+    //
+
+    // if we have a different category id than previous
+    // then set thePageNumber back to 1
+    if (this.previousCategoryId != this.currentCategoryId) {
+      this.thePageNumber = 1;
+    }
+
+    this.previousCategoryId = this.currentCategoryId;
+
+    console.log(`currentCategoryId=${this.currentCategoryId}, thePageNumber=${this.thePageNumber}`);
+
+    // now get the products for the given category id
+    this.productService.getProductListPaginate(this.thePageNumber - 1,
+                                               this.thePageSize,
+                                               this.currentCategoryId)
+                                               .subscribe(this.processResult());
+  }
+
+// add
+  processResult() {
+    return data => {
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number + 1;
+      this.thePageSize = data.page.size;
+      this.theTotalElements = data.page.totalElements;
+    };
+```
+
+![image-20200613203657437](angular-java-spring-boot.assets/image-20200613203657437.png)  
+
+product-list-grid.component.html
+
+```html
+<div class="footer-pagination">
+                <div class="row">
+                    <div class="col-md-6"></div>
+
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-9" style="padding-left: 30%">
+                            
+                                <ngb-pagination [(page)]="thePageNumber"
+                                                [pageSize]="thePageSize"
+                                                [collectionSize]="theTotalElements"
+                                                (pageChange)="listProducts()">
+
+                                </ngb-pagination>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+```
+
+
 
 ### 7. Angular Project - Pagination - Enhance HTML template to use Pagination Component
 
 ### 8. Angular Project - Pagination Demo
 
+![image-20200613204013519](angular-java-spring-boot.assets/image-20200613204013519.png)  
+
+
+
 ### 9. Angular Project - Pagination - Selecting Page Size - Part 1
+
+product-list-grid.component.html
+
+```html
+<div class="col-md-3 mt-2" style="text-align: right;">
+                                <span class="mr-2">Page Size</span>
+
+                                <select (change)="updatePageSize($event.target.value)">
+                                    <option selected="true">5</option>
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                </select>
+                            </div>
+```
+
+
 
 ### 10. Angular Project - Pagination - Selecting Page Size - Part 2
 
+product-list.component.ts
+
+```ts
+
+  updatePageSize(pageSize: number) {
+    this.thePageSize = pageSize;
+    this.thePageNumber = 1;
+    this.listProducts();
+  }
+
+```
+
+
+
 ### 11. Angular Project - Pagination - Setting Max Size and Adding Boundary Links
+
+```html
+ <ngb-pagination [(page)]="thePageNumber"
+                        [pageSize]="thePageSize"
+                        [collectionSize]="theTotalElements"
+                        [maxSize]="5" // add
+                        [boundaryLinks]="true" // add first and last
+                      (pageChange)="listProducts()">
+</ngb-pagination>
+```
+
+
 
 ### 12. Angular Project - Pagination - Keyword Search Overview
 
 ### 13. Angular Project - Pagingation - Keyword Search - Update ProductService
 
+product.service.ts
+
+```ts
+searchProductsPaginate(thePage: number, 
+                        thePageSize: number, 
+                        theKeyword: string): Observable<GetResponseProducts> {
+
+    // need to build URL based on keyword, page and size 
+    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`
+                    + `&page=${thePage}&size=${thePageSize}`;
+    
+    return this.httpClient.get<GetResponseProducts>(searchUrl);
+  }
+```
+
+
+
 ### 14. Angular Project - Pagingation - Keyword Search - Update ProductListComponent
+
+product-list.component.ts
+
+```ts
+handleSearchProducts() {
+
+    const theKeyword: string = this.route.snapshot.paramMap.get('keyword');
+
+    // if we have a different keyword than previous
+    // then set thePageNumber to 1
+
+    if (this.previousKeyword != theKeyword) {
+      this.thePageNumber = 1;
+    }
+
+    this.previousKeyword = theKeyword;
+
+    console.log(`keyword=${theKeyword}, thePageNumber=${this.thePageNumber}`);
+
+    // now search for the products using keyword
+    this.productService.searchProductsPaginate(this.thePageNumber - 1,
+                                               this.thePageSize,
+                                               theKeyword).subscribe(this.processResult());
+                                               
+  }
+```
+
+
 
 ## 17. eCommerce Project - Shopping Cart Status Component
 
 ### 1. Angular Project - Shopping Cart Status Overview - Basics
 
+Overview of Entire Shopping Cart Process
+
+1. Cart Status Component: on main page, display total price and quantity
+2. Cart Details Page: list the items in the cart
+3. Cart Details Page: add / remove items
+4. Checkout Button
+5. Checkout Form
+
+Development Process - Part 1
+
+1. Create new component: CartStatusComponent
+
+2. Add HTML template for CartStatusComponent
+
+3. Add click handler for "Add to cart" button
+
+4. Update ProductListComponent with click handler method
+
 ### 2. Angular Project - Shopping Cart Status - Create new component
+
+`ng g c components/cart-status`
+
+cart-status.component.html
+
+```html
+<div class="cart-area d-n">
+    <a href="shopping-detail.html">
+        <div class="total">{{ totalPrice | currency: 'USD' }}
+            <span>{{ totalQuantity }}</span> 
+        </div> 
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+    </a>
+</div>
+```
+
+cart-status.component.ts
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { CartService } from 'src/app/services/cart.service';
+
+@Component({
+  selector: 'app-cart-status',
+  templateUrl: './cart-status.component.html',
+  styleUrls: ['./cart-status.component.css']
+})
+export class CartStatusComponent implements OnInit {
+
+  totalPrice: number = 0.00;
+  totalQuantity: number = 0;
+
+  constructor(private cartService: CartService) { }
+
+  ngOnInit(): void {
+    this.updateCartStatus();
+  }
+
+  updateCartStatus() {
+
+    // subscribe to the cart totalPrice
+    this.cartService.totalPrice.subscribe(
+      data => this.totalPrice = data
+    );
+
+    // subscribe to the cart totalQuantity
+    this.cartService.totalQuantity.subscribe(
+      data => this.totalQuantity = data
+    );
+  }
+
+}
+
+```
+
+
 
 ### 3. Angular Project - Shopping Cart Status - Add Click Handler
 
+product-list-grid.component.html
+
+```html
+ <button (click)="addToCart(tempProduct)" class="btn btn-primary btn-sm">Add to cart</button>
+
+```
+
+product-list.component.ts
+
+```ts
+addToCart(theProduct: Product) {
+    
+    console.log(`Adding to cart: ${theProduct.name}, ${theProduct.unitPrice}`);
+
+    // TODO ... do the real work
+    const theCartItem = new CartItem(theProduct);
+
+    this.cartService.addToCart(theCartItem);
+  }
+```
+
+
+
 ### 4. Angular Project - Shopping Cart Status Overview - Advanced
+
+Development Process - Part 2
+
+1. Create model class: CartItem
+2. Develop CartService
+3. Modify ProductListComponent to call CartService
+4. Enhance CartStatusComponent to subscribe to CartService
+5. Update CartStatusComponent HTML to display cart total price and quantity
+
+![image-20200613211336222](angular-java-spring-boot.assets/image-20200613211336222.png)  
+
+Subject is a subclass of Observable
+
+We can use Subject to publish events in our code.
+
+The event will be sent to all of the subscribers
+
+
 
 ### 5. Angular Project - Shopping Cart Status Overview - Advanced - Cart Service
 
 ### 6. Angular Project - Shopping Cart Status Overview - Create model class CartItem
 
+`ng generate class common/cart-item`
+
+cart-item
+
+```ts
+import { Product } from './product';
+
+export class CartItem {
+
+    id: string;
+    name: string;
+    imageUrl: string;
+    unitPrice: number;
+
+    quantity: number;
+
+    constructor(product: Product) {
+        this.id = product.id;
+        this.name = product.name;
+        this.imageUrl = product.imageUrl;
+        this.unitPrice = product.unitPrice;
+
+        this.quantity = 1;
+    }
+}
+
+```
+
 ### 7. Angular Project - Shopping Cart Status - Develop CartService - Add to Cart
+
+`ng generate service services/cart`
+
+cart.service.ts
+
+```ts
+import { Injectable } from '@angular/core';
+import { CartItem } from '../common/cart-item';
+import { Subject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CartService {
+
+  cartItems: CartItem[] = [];
+
+  totalPrice: Subject<number> = new Subject<number>();
+  totalQuantity: Subject<number> = new Subject<number>();
+
+  constructor() { }
+
+  addToCart(theCartItem: CartItem) {
+
+    // check if we already have the item in our cart
+    let alreadyExistsInCart: boolean = false;
+    let existingCartItem: CartItem = undefined;
+
+    if (this.cartItems.length > 0) {
+      // find the item in the cart based on item id
+
+      for (let tempCartItem of this.cartItems) {
+        if (tempCartItem.id === theCartItem.id) {
+          existingCartItem = tempCartItem;
+          break;
+        }
+      }
+
+      // check if we found it
+      alreadyExistsInCart = (existingCartItem != undefined);
+    }
+
+    if (alreadyExistsInCart) {
+      // increment the quantity
+      existingCartItem.quantity++;
+    }
+    else {
+      // just add the item to the array
+      this.cartItems.push(theCartItem);
+    }
+
+    // compute cart total price and total quantity
+    this.computeCartTotals();
+  }
+
+  computeCartTotals() {
+
+    let totalPriceValue: number = 0;
+    let totalQuantityValue: number = 0;
+
+    for (let currentCartItem of this.cartItems) {
+      totalPriceValue += currentCartItem.quantity * currentCartItem.unitPrice;
+      totalQuantityValue += currentCartItem.quantity;
+    }
+
+    // publish the new values ... all subscribers will receive the new data
+    this.totalPrice.next(totalPriceValue);
+    this.totalQuantity.next(totalQuantityValue);
+
+    // log cart data just for debugging purposes
+    this.logCartData(totalPriceValue, totalQuantityValue);
+  }
+
+  logCartData(totalPriceValue: number, totalQuantityValue: number) {
+
+    console.log('Contents of the cart');
+    for (let tempCartItem of this.cartItems) {
+      const subTotalPrice = tempCartItem.quantity * tempCartItem.unitPrice;
+      console.log(`name: ${tempCartItem.name}, quantity=${tempCartItem.quantity}, unitPrice=${tempCartItem.unitPrice}, subTotalPrice=${subTotalPrice}`);
+    }
+
+    console.log(`totalPrice: ${totalPriceValue.toFixed(2)}, totalQuantity: ${totalQuantityValue}`);
+    console.log('----');
+  }
+}
+
+```
+
+
 
 ### 8. Angular Project - Shopping Cart Status - Develop CartService - Compute Totals
 
 ### 9. Angular Project - Shopping Cart Status - Call CartService
 
+product-list.component.ts
+
+```ts
+constructor(private productService: ProductService,
+              private cartService: CartService, // add
+              private route: ActivatedRoute) { }
+
+addToCart(theProduct: Product) {
+    
+    console.log(`Adding to cart: ${theProduct.name}, ${theProduct.unitPrice}`);
+
+    // add
+    const theCartItem = new CartItem(theProduct);
+
+    this.cartService.addToCart(theCartItem);
+  }
+```
+
+![image-20200613213422845](angular-java-spring-boot.assets/image-20200613213422845.png)
+
 ### 10. Angular Project - Shopping Cart Status - Subscribe to CartService Display Totals
+
+cart-status.component.html
+
+```html
+<div class="cart-area d-n">
+    <a href="shopping-detail.html">
+        <div class="total">{{ totalPrice | currency: 'USD' }}
+            <span>{{ totalQuantity }}</span> 
+        </div> 
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+    </a>
+</div>
+```
+
+cart-status.component.ts
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { CartService } from 'src/app/services/cart.service';
+
+@Component({
+  selector: 'app-cart-status',
+  templateUrl: './cart-status.component.html',
+  styleUrls: ['./cart-status.component.css']
+})
+export class CartStatusComponent implements OnInit {
+
+  totalPrice: number = 0.00;
+  totalQuantity: number = 0;
+
+  constructor(private cartService: CartService) { }
+
+  ngOnInit(): void {
+    this.updateCartStatus();
+  }
+
+  updateCartStatus() {
+
+    // subscribe to the cart totalPrice
+    this.cartService.totalPrice.subscribe(
+      data => this.totalPrice = data
+    );
+
+    // subscribe to the cart totalQuantity
+    this.cartService.totalQuantity.subscribe(
+      data => this.totalQuantity = data
+    );
+  }
+
+}
+
+```
+
+
 
 ### 11. Angular Project - Shopping Cart Status - Refactor Cart Service Overview
 
+![image-20200613213646091](angular-java-spring-boot.assets/image-20200613213646091.png)
+
 ### 12. Angular Project - Shopping Cart Status - Refactor Cart Service - Write the Code
+
+cart.service.ts
+
+```ts
+ if (this.cartItems.length > 0) {
+      // find the item in the cart based on item id
+
+      existingCartItem = this.cartItems.find( tempCartItem => tempCartItem.id === theCartItem.id );
+
+      // check if we found it
+      alreadyExistsInCart = (existingCartItem != undefined);
+    }
+```
+
+![image-20200613213830111](angular-java-spring-boot.assets/image-20200613213830111.png)
 
 ### 13. Angular Project - Shopping Cart Status - Add To Cart From Details View
 
+product-details.component.html
+
+```html
+        <button (click)="addToCart()" class="btn btn-primary btn-sm">Add to cart</button>
+```
+
+
+
+```ts
+addToCart() {
+
+    console.log(`Adding to cart: ${this.product.name}, ${this.product.unitPrice}`);
+    const theCartItem = new CartItem(this.product);
+    this.cartService.addToCart(theCartItem);
+    
+  }
+```
+
+
+
 ### 14. Angular Project - Shopping Cart Status - Add To Cart From Details View - Coding
+
+
 
 ## 18. eCommerce Project - List Shopping Cart Items
 
 ### 1. Angular Project - List Shopping Cart Items - Overview
 
+`ng generate component components/cart-details`
+
+app.module.ts
+
+```ts
+const routes: Routes = [
+  {path: 'cart-details', component: CartDetailsComponent}, // add
+  {path: 'products/:id', component: ProductDetailsComponent},
+  {path: 'search/:keyword', component: ProductListComponent},
+  {path: 'category/:id', component: ProductListComponent},
+  {path: 'category', component: ProductListComponent},
+  {path: 'products', component: ProductListComponent},
+  {path: '', redirectTo: '/products', pathMatch: 'full'},
+  {path: '**', redirectTo: '/products', pathMatch: 'full'}
+];
+```
+
+cart-status.component.html
+
+```html
+<div class="cart-area d-n">
+    <a routerLink="/cart-details">
+        <div class="total">{{ totalPrice | currency: 'USD' }}
+            <span>{{ totalQuantity }}</span> 
+        </div> 
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+    </a>
+</div>
+```
+
+
+
 ### 2. Angular Project - List Shopping Cart Items - Create CartDetailsComponent
 
 ### 3. Angular Project - List Shopping Cart Items - Create HTML Table
 
+cart-details.component.html
+
+```ts
+<div class="main-content">
+    <div class="section-content section-content-p30">
+        <div class="container-fluid">
+
+            <table class="table table-bordered">
+                <tr>
+                    <th width="20%">Product Image</th>
+                    <th width="50%">Product Detail</th>
+                    <th width="30%"></th>
+                </tr>
+
+                <tr *ngFor="let tempCartItem of cartItems">
+                    <td>
+                        <img src="{{ tempCartItem.imageUrl }}" class="img-responsive" width="150px" />
+                    </td>
+                    <td>
+                        <p>{{ tempCartItem.name }}</p>
+                        <p>{{ tempCartItem.unitPrice | currency: 'USD' }}</p>
+                    </td>
+                    <td>
+                        <div class="items">
+                            <label>Quantity:</label> {{ tempCartItem.quantity }}
+                        </div>
+
+                        <p class="mt-2">Subtotal: {{ tempCartItem.quantity * tempCartItem.unitPrice | currency: 'USD' }}</p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"></td>
+                    <td style="font-weight: bold">
+                        <p>Total Quantity: {{ totalQuantity }}</p>
+                        <p>Shipping: FREE</p>
+                        <p>Total Price: {{ totalPrice | currency: 'USD' }}</p>
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+    </div>
+</div>
+
+```
+
+![image-20200613224021403](angular-java-spring-boot.assets/image-20200613224021403.png)
+
 ### 4. Angular Project - List Shopping Cart Items - Retrieve data from Cart Service
+
+cart-details.component.ts
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { CartItem } from 'src/app/common/cart-item';
+import { CartService } from 'src/app/services/cart.service';
+
+@Component({
+  selector: 'app-cart-details',
+  templateUrl: './cart-details.component.html',
+  styleUrls: ['./cart-details.component.css']
+})
+export class CartDetailsComponent implements OnInit {
+
+  cartItems: CartItem[] = [];
+  totalPrice: number = 0;
+  totalQuantity: number = 0;
+
+  constructor(private cartService: CartService) { }
+
+  ngOnInit(): void {
+    this.listCartDetails();
+  }
+
+  listCartDetails() {
+
+    // get a handle to the cart items
+    this.cartItems = this.cartService.cartItems;
+
+    // subscribe to the cart totalPrice
+    this.cartService.totalPrice.subscribe(
+      data => this.totalPrice = data
+    );
+
+    // subscribe to the cart totalQuantity
+    this.cartService.totalQuantity.subscribe( 
+      data => this.totalQuantity = data
+    );
+
+    // compute cart total price and quantity
+    this.cartService.computeCartTotals();
+  }
+
+}
+
+```
+
+
 
 ### 5. Angular Project - List Shopping Cart Items - Loop over Cart Items in HTML
 
+![image-20200613224107327](angular-java-spring-boot.assets/image-20200613224107327.png)
+
 ### 6. Angular Project - List Shopping Cart Items - Display Cart Totals
+
+
+
+### 7 Angular Project - List Shopping Cart Items - Handle an Empty Cart
+
+app.component.html
+
+```html
+<!-- MENU SIDEBAR-->
+  <aside class="menu-sidebar d-none d-lg-block">
+    <div class="logo">
+        <!-- add -->
+      <a routerLink="/products">
+        <img src="assets/images/logo.png" alt="luv2shop" class="img-responsive">
+      </a>
+    </div>
+```
+
+cart-details.component.html
+
+```html
+<!-- if cart is empty then display a message -->
+            <div *ngIf="cartItems.length == 0" class="alert alert-warning col-md-12" role="alert">
+                Your shopping cart is empty. 
+            </div>
+```
+
+
+
+### 8 Angular Project - Increment Item Quantity - Overview
+
+
+
+### 9. Angular Project - Increment Item Quantity - Layout the Buttons
+
+cart-detail
+
+```ts
+<div class="items">
+                                <label>Quantity:</label>
+
+                                <div class="row no-gutters">
+                                    <div class="col">
+                                        <button (click)="incrementQuantity(tempCartItem)" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="col ml-4 mr-2">
+                                        {{ tempCartItem.quantity }}
+                                    </div>
+
+                                    <div class="col">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="col-8"></div>
+                                </div>
+
+                            </div>
+```
+
+![image-20200613224928213](angular-java-spring-boot.assets/image-20200613224928213.png)
+
+### 10. Angular Project - Increment Item Quantity - Add Event Handlers
+
+cart-details.component.ts
+
+```ts
+incrementQuantity(theCartItem: CartItem) {
+    this.cartService.addToCart(theCartItem);
+  }
+```
+
+
+
+### 11. Angular Project - Decrement/Remove Item Quantity - Overview
+
+
+
+### 12. Angular Project - Decrement Item Quantity - Write Some Code
+
+cart-details.component.html
+
+```html
+<div class="col">
+          <button (click)="decrementQuantity(tempCartItem)" class="btn btn-primary btn-sm">
+                   <i class="fas fa-minus"></i>
+          </button>
+</div>
+
+ <button (click)="remove(tempCartItem)" class="btn btn-primary btn-sm mt-2">Remove</button>
+
+```
+
+cart-details.component.ts
+
+```ts
+decrementQuantity(theCartItem: CartItem) {
+    this.cartService.decrementQuantity(theCartItem);
+  }
+```
+
+cart.service.ts
+
+```ts
+
+  decrementQuantity(theCartItem: CartItem) {
+
+    theCartItem.quantity--;
+
+    if (theCartItem.quantity === 0) {
+      this.remove(theCartItem);
+    }
+    else {
+      this.computeCartTotals();
+    }
+  }
+
+  remove(theCartItem: CartItem) {
+
+    // get index of item in the array
+    const itemIndex = this.cartItems.findIndex( tempCartItem => tempCartItem.id === theCartItem.id );
+
+    // if found, remove the item from the array at the given index
+    if (itemIndex > -1) {
+      this.cartItems.splice(itemIndex, 1);
+
+      this.computeCartTotals();
+    }
+  }
+
+```
+
+
+
+## eCommerce Project - Checkout
+
+
+### Angular Project - Checkout Form Layout - Overview - Part
+
+https://angular.io/guide/forms-overview
+
+Development Process
+
+1. Generate our checkout component
+
+2. Add a new route for checkout component
+
+3. Create a new checkout button and link to checkout component
+
+4. Add support for reactive forms
+
+5. Define form in component .ts file
+
+6. Layout form controls in HTML template
+
+7. Add event handler for form submission
+
+### Angular Project - Checkout Form Layout - Overview - Part 2
+
+`ng generate component components/checkout`
+
+### Angular Project - Checkout Form Layout - Generate Checkout Component
+
+app.module.ts
+
+```ts
+  {path: 'checkout', component: CheckoutComponent},
+      
+  // add
+      ReactiveFormsModule
+
+```
+
+cart-details.component.html
+
+```html
+ <a routerLink="/checkout" class="btn btn-primary">Checkout</a>
+```
+
+
+
+
+
+### Angular Project - Checkout Form Layout - Add support for Reactive Forms
+
+checkout.component.html
+
+```html
+<div class="main-content page-m">
+    <div class="section-content section-content-p30">
+        <div class="container-fluid">
+
+            <form [formGroup]="checkoutFormGroup" (ngSubmit)="onSubmit()">
+
+                <!-- customer form group -->
+                <div formGroupName="customer" class="form-area">
+                    <h3>Customer</h3>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>First Name</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="firstName" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Last Name</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="lastName" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Email</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="email" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- shipping Address -->
+                <div formGroupName="shippingAddress" class="form-area">
+                    <h3>Shipping Address</h3>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Country</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="country">
+                                    <option>TO DO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Street</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="street" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>City</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="city" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>State</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="state">
+                                    <option>TO DO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Zip Code</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="zipCode" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Add check box to copy shipping to billing -->
+                <div class="input-space">
+                    <label class="au-checkbox">
+                        <input type="checkbox" (change)="copyShippingAddressToBillingAddress($event)">
+                        <span class="au-checkmark"></span>Billing Address same as Shipping Address
+                    </label>
+                </div>
+
+
+                <!-- Billing Address -->
+                <div formGroupName="billingAddress" class="form-area">
+                    <h3>Billing Address</h3>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Country</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="country">
+                                    <option>TO DO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Street</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="street" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>City</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="city" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>State</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="state">
+                                    <option>TO DO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Zip Code</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="zipCode" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Credit Card -->
+                <div formGroupName="creditCard" class="form-area">
+                    <h3>Credit Card</h3>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Card Type</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="cardType">
+                                    <option>Visa</option>
+                                    <option>Mastercard</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Name on Card</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="nameOnCard" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Card Number</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="cardNumber" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Security Code</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <input formControlName="securityCode" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Expiration Month</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="expirationMonth">
+                                    <option *ngFor="let month of creditCardMonths">
+                                        {{ month }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2"> <label>Expiration Year</label></div>
+                        <div class="col-md-9">
+                            <div class="input-space">
+                                <select formControlName="expirationYear" (change)="handleMonthsAndYears()">
+                                    <option *ngFor="let year of creditCardYears">
+                                        {{ year }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Order details -->
+                <div class="form-area">
+                    <h3>Review Your Order</h3>
+
+                    <p>Total Quantity: {{ totalQuantity }}</p>
+                    <p>Shipping: FREE</p>
+                    <p>Total Price: {{ totalPrice | currency: 'USD' }}</p>
+                </div>
+
+                <!-- submit button-->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-info">Purchase</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+```
+
+checkout.component.ts
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { Luv2ShopFormService } from 'src/app/services/luv2-shop-form.service';
+
+@Component({
+  selector: 'app-checkout',
+  templateUrl: './checkout.component.html',
+  styleUrls: ['./checkout.component.css']
+})
+export class CheckoutComponent implements OnInit {
+
+  checkoutFormGroup: FormGroup;
+
+  totalPrice: number = 0;
+  totalQuantity: number = 0;
+  
+  creditCardYears: number[] = [];
+  creditCardMonths: number[] = [];
+
+  constructor(private formBuilder: FormBuilder,
+              private luv2ShopFormService: Luv2ShopFormService) { }
+
+  ngOnInit(): void {
+    
+    this.checkoutFormGroup = this.formBuilder.group({
+      customer: this.formBuilder.group({
+        firstName: [''],
+        lastName: [''],
+        email: ['']
+      }),
+      shippingAddress: this.formBuilder.group({
+        street: [''],
+        city: [''],
+        state: [''],
+        country: [''],
+        zipCode: ['']
+      }),
+      billingAddress: this.formBuilder.group({
+        street: [''],
+        city: [''],
+        state: [''],
+        country: [''],
+        zipCode: ['']
+      }),
+      creditCard: this.formBuilder.group({
+        cardType: [''],
+        nameOnCard: [''],
+        cardNumber: [''],
+        securityCode: [''],
+        expirationMonth: [''],
+        expirationYear: ['']
+      })
+    });
+
+    // populate credit card months
+
+    const startMonth: number = new Date().getMonth() + 1;
+    console.log("startMonth: " + startMonth);
+
+    this.luv2ShopFormService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        console.log("Retrieved credit card months: " + JSON.stringify(data));
+        this.creditCardMonths = data;
+      }
+    );
+
+  onSubmit() {
+    console.log("Handling the submit button");
+    console.log(this.checkoutFormGroup.get('customer').value);
+    console.log("The email address is " + this.checkoutFormGroup.get('customer').value.email);
+  }
+
+}
+
+```
+
+
+
+
+
+### Angular Project - Checkout Form Layout - Layout Form Controls in HTML
+
+![image-20200613231552405](angular-java-spring-boot.assets/image-20200613231552405.png)
+
+
+
+### Angular Project - Checkout Form Layout - Add Event Handling for Submit
+
+ghi log value of form
+
+
+### Angular Project - Checkout Form Layout - Shipping Address
+
+![image-20200613231905606](angular-java-spring-boot.assets/image-20200613231905606.png)
+
+
+
+### Angular Project - Checkout Form Layout - Billing Address
+
+![image-20200613232036820](angular-java-spring-boot.assets/image-20200613232036820.png)  
+
+checkout.component.ts
+
+```ts
+
+  copyShippingAddressToBillingAddress(event) {
+
+    if (event.target.checked) {
+      this.checkoutFormGroup.controls.billingAddress
+            .setValue(this.checkoutFormGroup.controls.shippingAddress.value);
+    }
+    else {
+      this.checkoutFormGroup.controls.billingAddress.reset();
+    }
+    
+  }
+```
+
+```html
+  <!-- Add check box to copy shipping to billing -->
+                <div class="input-space">
+                    <label class="au-checkbox">
+                        <input type="checkbox" (change)="copyShippingAddressToBillingAddress($event)">
+                        <span class="au-checkmark"></span>Billing Address same as Shipping Address
+                    </label>
+                </div>
+
+```
+
+
+
+### Angular Project - Checkout Form Layout - Credit Card
+
+![image-20200613232414795](angular-java-spring-boot.assets/image-20200613232414795.png)  
+
+
+
+### Angular Project - Checkout Form Layout - Review Your Order
+
+```html
+<!-- Order details -->
+                <div class="form-area">
+                    <h3>Review Your Order</h3>
+
+                    <p>Total Quantity: {{ totalQuantity }}</p>
+                    <p>Shipping: FREE</p>
+                    <p>Total Price: {{ totalPrice | currency: 'USD' }}</p>
+                </div>
+```
+
+
 
 ## 19. More Content is Coming
 
 ### 1. More Content is Coming.html
+
+More Content is Coming
+
+**MORE VIDEOS ARE COMING!**
+
+We will make two more releases for this course. Here are the plans for Release 2.0 and 3.0
+
+*(last updated 10 May 2020)*
+
+
+
+**Release 2.0:**
+
+\- Develop a Shopping cart Checkout Page and Multi-Dependent Forms (Country, State, City) 
+
+
+
+**Release 3.0:**
+
+\- Integrate Spring Security for login with OAuth / JWT
+
+\- Provide access to special VIP page only for authenticated customers
+
+\- Keep track of order history for registered customers
+
+
+
+For the upcoming Release 2.0 and 3.0, these will be free updates. I'll add the videos to this existing course. I'll send an email once the videos are uploaded.
 
 ## 20. Summary
 
