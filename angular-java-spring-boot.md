@@ -1149,13 +1149,175 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
 
 ### 2. Angular Project Overview - Part 2
 
+![image-20200613084340539](angular-java-spring-boot.assets/image-20200613084340539.png)  
+
 ### 3. Angular Project - Setup
 
+`ng new project`
+
+index.html
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+    <!-- add  start -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">
+    <!-- add  end -->
+
+  <title>AngularEcommerce</title>
+  <base href="/">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
+
+```
+
+command
+
+```shell
+ng g c components/product-list
+ng generate class common/product
+ng generate service services/product
+```
+
+product-list.component.html
+
+```html
+<p *ngFor="let tempProduct of products">
+    {{ tempProduct.name}}: {{ tempProduct.unitPrice | currency:'USD'}}
+</p>
+```
+
+product-list.component.ts
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { ProductService } from 'src/app/services/product.service';
+import { Product } from 'src/app/common/product';
+
+@Component({
+  selector: 'app-product-list',
+  templateUrl: './product-list.component.html',
+  styleUrls: ['./product-list.component.css']
+})
+export class ProductListComponent implements OnInit {
+
+  products: Product[];
+  
+  constructor(private productService: ProductService) { }
+
+  ngOnInit() {
+    this.listProducts();
+  }
+
+  listProducts() {
+    this.productService.getProductList().subscribe(
+      data => {
+        this.products = data;
+      }
+    )
+  }
+
+}
+
+```
+
+
+
 ### 4. Angular Project - Create Product class and Product Service - Part 1
+
+product
+
+```ts
+export class Product {
+    sku: string;
+    name: string;
+    description: string;
+    unitPrice: number;
+    imageUrl: string;
+    active: boolean;
+    unitsInStock: number;
+    dateCreated: Date;
+    lastUpdate: Date;
+}
+
+```
+
+product.service.ts
+
+```ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Product } from '../common/product';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProductService {
+
+  private baseUrl = 'http://localhost:8080/api/products';
+
+  constructor(private httpClient: HttpClient) { }
+
+  getProductList(): Observable<Product[]> {
+    return this.httpClient.get<GetResponse>(this.baseUrl).pipe(
+      map(response => response._embedded.products)
+    );
+  }
+}
+
+interface GetResponse {
+  _embedded: {
+    products: Product[];
+  }
+}
+```
+
+app.module.ts
+
+```ts
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+
+import { AppComponent } from './app.component';
+import { ProductListComponent } from './components/product-list/product-list.component';
+import { HttpClientModule } from '@angular/common/http';
+import { ProductService } from './services/product.service';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    ProductListComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule // add
+  ],
+  providers: [ProductService], // add
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+```
+
+
 
 ### 5. Angular Project - Create Product class and Product Service - Part 2
 
 ### 6. Angular Project - Update Angular Component
+
+![image-20200613100435841](angular-java-spring-boot.assets/image-20200613100435841.png)
 
 ### 7. Angular Project - Integrating Angular and Spring Boot for Full Stack App!
 
