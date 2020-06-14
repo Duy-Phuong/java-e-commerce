@@ -1,0 +1,44 @@
+<h4><strong>MySQL Editions</strong></h4>
+
+<p>There are several editions for MySQL. Primarily, <strong>MySQL Enterprise Edition</strong> and <strong>MySQL Community Edition</strong>.
+</p>
+
+<p>For the purposes of this course, we will be using the <strong>MySQL Community Edition</strong>.</p>
+
+<p>The MySQL Enterprise Edition is a paid version of MySQL, which comes with support from Oracle. The functionality for writing SQL for the two editions are the same.</p>
+
+<h4>
+</h4>
+
+<h4><strong>MySQL Ubuntu Installation</strong></h4>
+
+<p>To install MySQL on Ubuntu:
+</p>
+
+<ol><li>Run the following commands as root or prefix the commands below with <code>sudo</code> .</li><li>Update the package index on your server.</li><p><code>apt-get update</code> 
+</p><li>Install the package.</li><p><code>apt-get install mysql-server-5.7</code> 
+</p></ol>
+
+<p><em>Note: If you are not sure about the version, you can omit the version and run <code>sudo apt-get install mysql-server</code> . This will install the latest version for your Linux distribution. </em></p>
+
+
+
+<p>To install the latest MySQL version not included in the APT package repository:
+</p>
+
+<ol><li>Install the newer APT package repository from the <a href="https://dev.mysql.com/downloads/repo/apt/" rel="nofollow" target="_blank">MySQL APT repository</a> page.</li><p><code>wget http://dev.mysql.com/get/mysql-apt-config_0.6.0-1_all.deb</code> </p><li>Go through the prompt to select and apply the specific MySQL version to install.</li><li>Update the package index on your server.</li><p><code>sudo apt-get update</code> </p><li>Install the package.</li><p><code>sudo apt-get install mysql-server</code> </p></ol>
+
+<p>Once installation is complete, MySQL should run automatically. You can check the status of MySQL using this command.</p>
+
+<p><code>service mysql status</code> </p>
+
+<h4>
+</h4>
+
+<h4><strong>MySQL CentOS Installation</strong></h4>
+
+<p>To install MySQL on CentOS:</p>
+
+<ol><li>Update your system using:
+<code>sudo yum update</code> </li>###liMySQL Yum Repository page. <li>Select the release package for your platform.</li><li>Download the package. (Note: if wget is not found, install with the command - <code>yum install wget</code> </li><p><code>$ wget https://dev.mysql.com/get/mysql57-community-release-el6-11.noarch.rpm</code> UPdate </p><li>Update system dependencies (again).
+<code>sudo yum update</code>  </li><li>Install the package.</li><p><code>$ sudo rpm -ivh mysql57-community-release-el6-11.noarch.rpm</code> </p><li>Install MySQL.</li><p><code>$ sudo yum install mysql-server</code> </p><li>Start the MySQL daemon.</li><p><code>$ sudo systemctl start mysqld</code> </p><li>Confirm that MySQL is running.</li><p><code>$ sudo systemctl status mysqld</code> </p></ol>
